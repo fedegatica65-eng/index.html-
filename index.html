@@ -254,7 +254,7 @@
 
     <script>
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyh4TFgtSIk7Uo4-IvkdbQwl5cb1FtWEDdP5GEKoZK_CeW9LTbSUasKfGBTEV-mc3MTgQ/exec'; // <--- TU URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyh4TFgtSIk7Uo4-IvkdbQwl5cb1FtWEDdP5GEKoZK_CeW9LTbSUasKfGBTEV-mc3MTgQ/exec; // <--- TU URL DE APPS SCRIPT
         // ========================================================
         
         let catalogoProductos = []; 
@@ -600,4 +600,45 @@
                     setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
                 } else throw new Error();
             })
-            .catch(() => { alert
+            .catch(() => { alert("Error al guardar el cierre."); estadoDiv.innerText = 'Error'; });
+        }
+
+        function mostrarModalBusqueda(resultados) {
+            let contResultados = document.getElementById('resultados-busqueda');
+            contResultados.innerHTML = '';
+            
+            resultados.forEach(prod => {
+                let div = document.createElement('div');
+                div.className = 'item-lista';
+                let precioLimpio = limpiarPrecio(prod.precioVenta);
+                
+                let avisoStock = "";
+                if (prod.stockActual <= prod.stockMinimo) {
+                    avisoStock = ` <span style="font-size: 0.9rem; background: #fce8e6; color: #c5221f; padding: 4px 8px; border-radius: 4px; font-weight: bold;">⚠️ Stock bajo (${prod.stockActual})</span>`;
+                }
+
+                div.innerHTML = `<span><strong>${prod.nombre}</strong>${avisoStock}</span> <span style="color:#1a73e8; font-weight:bold;">$${precioLimpio.toLocaleString('es-AR', {minimumFractionDigits: 2})}</span>`;
+                
+                div.onclick = () => {
+                    agregarAlTicket(prod);
+                    cerrarModal('modal-busqueda');
+                };
+                contResultados.appendChild(div);
+            });
+            document.getElementById('modal-busqueda').style.display = 'flex';
+        }
+
+        function cerrarModal(idModal) {
+            document.getElementById(idModal).style.display = 'none';
+            inputBuscador.focus();
+        }
+        
+        document.addEventListener('click', function(e) {
+            let modalesAbiertos = document.querySelectorAll('.overlay[style="display: flex;"]');
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && modalesAbiertos.length === 0)अब {
+                 inputBuscador.focus();
+            }
+        });
+    </script>
+</body>
+</html>
