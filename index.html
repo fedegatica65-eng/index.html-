@@ -30,7 +30,6 @@
         th { background-color: #f1f3f4; padding: 12px 15px; text-align: left; font-size: 1.1rem; color: #5f6368; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 10; }
         td { padding: 12px 15px; font-size: 1.2rem; border-bottom: 1px solid #eee; vertical-align: middle; color: #202124; }
         
-        /* Ajuste de anchos para que entren números decimales como 0.500 cómodamente */
         .col-cant { width: 110px; text-align: center; } 
         .input-cant { width: 85px; font-size: 1.2rem; padding: 8px 5px; text-align: center; border: 2px solid #ccc; border-radius: 6px; font-weight: bold; color: #1a73e8; }
         
@@ -210,21 +209,31 @@
         </div>
     </div>
 
+    <!-- MODAL DE PAGO MIXTO REACTIVADO -->
     <div class="overlay" id="modal-mixto">
         <div class="modal">
             <h2>Dividir Pago</h2>
-            <p style="font-size: 1.2rem; color: #5f6368; margin-top: 5px;">Total: <strong>$<span id="total-mixto-display">0.00</span></strong></p>
+            <p style="font-size: 1.2rem; color: #5f6368; margin-top: 5px;">Total a pagar: <strong>$<span id="total-mixto-display">0.00</span></strong></p>
             <div class="modal-mixto-cuerpo">
                 <div class="grupo-input-mixto">
                     <label>Efectivo:</label>
-                    <div style="display: flex; align-items: center; gap: 5px;"><span style="font-size: 1.5rem; color:#5f6368">$</span><input type="number" id="input-mixto-efectivo" class="input-dinero" oninput="calcularMixto('efectivo')" min="0"></div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 1.5rem; color:#5f6368">$</span>
+                        <input type="number" id="input-mixto-efectivo" class="input-dinero" oninput="calcularMixto('efectivo')" min="0">
+                    </div>
                 </div>
                 <div class="grupo-input-mixto">
                     <label>Transf / MP:</label>
-                    <div style="display: flex; align-items: center; gap: 5px;"><span style="font-size: 1.5rem; color:#5f6368">$</span><input type="number" id="input-mixto-mp" class="input-dinero" oninput="calcularMixto('mp')" min="0"></div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 1.5rem; color:#5f6368">$</span>
+                        <input type="number" id="input-mixto-mp" class="input-dinero" oninput="calcularMixto('mp')" min="0">
+                    </div>
                 </div>
             </div>
-            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-mixto')">Cancelar</button><button class="btn-modal btn-confirmar" onclick="procesarVentaMixta()">Confirmar</button></div>
+            <div class="acciones-modal">
+                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-mixto')">Cancelar</button>
+                <button class="btn-modal btn-confirmar" onclick="procesarVentaMixta()">Confirmar Pago</button>
+            </div>
         </div>
     </div>
 
@@ -257,7 +266,7 @@
 
     <script>
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyh4TFgtSIk7Uo4-IvkdbQwl5cb1FtWEDdP5GEKoZK_CeW9LTbSUasKfGBTEV-mc3MTgQ/exec'; // <--- TU URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwTja41pTb0U7C-NEPM8XDjq9xtcBRkoeWtQO4zoN4ljVr0c-39pl048kLPO2sAzANc/exec'; // <--- TU URL DE APPS SCRIPT
         // ========================================================
         
         let catalogoProductos = []; 
@@ -334,7 +343,7 @@
             let precioReal = limpiarPrecio(producto.precioVenta);
 
             if (itemExistente) {
-                itemExistente.cantidad++; // Si escanea de nuevo, suma 1 (sea kilo o unidad)
+                itemExistente.cantidad++; 
                 itemExistente.total = itemExistente.cantidad * itemExistente.precioUnitario;
             } else {
                 ticketActual.push({ codigo: producto.codigo, nombre: producto.nombre, cantidad: 1, precioUnitario: precioReal, total: precioReal });
@@ -342,10 +351,9 @@
             actualizarVistaTicket();
         }
 
-        // --- CAMBIO CLAVE PARA ACEPTAR DECIMALES ---
         function cambiarCantidad(index, valorInput) {
-            let nuevaCant = parseFloat(valorInput); // Ahora lee decimales
-            if (isNaN(nuevaCant) || nuevaCant <= 0) nuevaCant = 1; // Si borran o ponen negativo, vuelve a 1
+            let nuevaCant = parseFloat(valorInput); 
+            if (isNaN(nuevaCant) || nuevaCant <= 0) nuevaCant = 1; 
             ticketActual[index].cantidad = nuevaCant;
             ticketActual[index].total = nuevaCant * ticketActual[index].precioUnitario;
             actualizarVistaTicket();
@@ -363,8 +371,6 @@
             ticketActual.forEach((item, index) => {
                 subtotalTicket += item.total;
                 let fila = document.createElement('tr');
-                
-                // Agregamos step="any" y min="0.001" al input
                 fila.innerHTML = `
                     <td><strong>${item.nombre}</strong></td>
                     <td class="col-cant">
@@ -519,15 +525,41 @@
             .catch(() => { alert("Error al guardar."); estadoDiv.innerText = 'Error'; });
         }
 
+        // --- LÓGICA DE PAGO MIXTO RECUPERADA ---
+        function abrirModalMixto() {
+            if (ticketActual.length === 0) return;
+            document.getElementById('total-mixto-display').innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
+            document.getElementById('input-mixto-efectivo').value = '';
+            document.getElementById('input-mixto-mp').value = '';
+            document.getElementById('modal-mixto').style.display = 'flex';
+            document.getElementById('input-mixto-efectivo').focus();
+        }
+
+        function calcularMixto(origen) {
+            let efe = parseFloat(document.getElementById('input-mixto-efectivo').value) || 0;
+            let mp = parseFloat(document.getElementById('input-mixto-mp').value) || 0;
+            
+            // Autocompletar el monto faltante automáticamente
+            if (origen === 'efectivo' && efe <= totalTicket && document.getElementById('input-mixto-efectivo').value !== '') {
+                document.getElementById('input-mixto-mp').value = (totalTicket - efe).toFixed(2);
+            } else if (origen === 'mp' && mp <= totalTicket && document.getElementById('input-mixto-mp').value !== '') {
+                document.getElementById('input-mixto-efectivo').value = (totalTicket - mp).toFixed(2);
+            }
+        }
+
         function procesarVentaMixta() {
             let valEfectivo = parseFloat(document.getElementById('input-mixto-efectivo').value) || 0;
             let valMp = parseFloat(document.getElementById('input-mixto-mp').value) || 0;
-            if (Math.abs((valEfectivo + valMp) - totalTicket) > 0.5) return alert("Los montos no suman el total.");
+            
+            if (Math.abs((valEfectivo + valMp) - totalTicket) > 0.5) {
+                return alert("Revisá los montos, la suma no coincide con el total a cobrar.");
+            }
             
             let pagos = { efectivo: valEfectivo, mp: valMp, fiado: 0 };
             cerrarModal('modal-mixto');
             enviarVentaAlMotor(pagos, "");
         }
+        // ----------------------------------------
 
         function enviarVentaAlMotor(pagos, nombreCliente) {
             estadoDiv.innerText = 'Registrando...';
