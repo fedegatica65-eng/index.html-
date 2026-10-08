@@ -5,74 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Punto de Venta - Kiosco</title>
     <style>
-        /* Diseño pensado para personas mayores */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        /* Diseño general mejorado */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 15px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; flex-shrink: 0; }
-        .header h1 { margin: 0; color: #1a73e8; font-size: 1.8rem; }
-        #estado { font-weight: bold; color: #fbbc05; background: #fff3e0; padding: 5px 15px; border-radius: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; flex-shrink: 0; }
+        .header h1 { margin: 0; color: #1a73e8; font-size: 1.8rem; font-weight: 700; }
+        #estado { font-weight: bold; color: #fbbc05; background: #fff3e0; padding: 8px 18px; border-radius: 20px; font-size: 1.1rem; }
         
-        /* Ajuste para que no se corten los botones */
-        .main-container { display: flex; gap: 20px; flex: 1; min-height: 0; overflow: hidden; }
+        .main-container { display: flex; gap: 15px; flex: 1; min-height: 0; overflow: hidden; }
         
         /* Panel izquierdo */
-        .panel-izquierdo { flex: 2; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; }
-        .buscador-container { margin-bottom: 20px; flex-shrink: 0; }
-        #input-buscador { width: 100%; padding: 20px; font-size: 1.5rem; border: 2px solid #1a73e8; border-radius: 8px; box-sizing: border-box; }
-        #input-buscador:focus { outline: none; border-color: #0d47a1; box-shadow: 0 0 8px rgba(26,115,232,0.5); }
+        .panel-izquierdo { flex: 2.2; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+        .buscador-container { margin-bottom: 15px; flex-shrink: 0; }
+        #input-buscador { width: 100%; padding: 18px; font-size: 1.4rem; border: 2px solid #a4c2f4; border-radius: 8px; box-sizing: border-box; background-color: #f8fbff; transition: 0.2s; }
+        #input-buscador:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); background-color: #fff; }
         
-        .ticket-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; }
+        .ticket-container { flex: 1; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; }
-        th { background-color: #f8f9fa; padding: 15px; text-align: left; font-size: 1.2rem; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 10; }
-        td { padding: 15px; font-size: 1.3rem; border-bottom: 1px solid #eee; vertical-align: middle; }
-        .col-cant { width: 100px; text-align: center; }
+        th { background-color: #f1f3f4; padding: 12px 15px; text-align: left; font-size: 1.1rem; color: #5f6368; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 10; }
+        td { padding: 12px 15px; font-size: 1.2rem; border-bottom: 1px solid #eee; vertical-align: middle; color: #202124; }
+        .col-cant { width: 90px; text-align: center; }
         .col-precio { text-align: right; }
+        .col-quitar { width: 60px; text-align: center; }
         
-        /* Nuevo recuadro para cantidad manual */
-        .input-cant { width: 70px; font-size: 1.4rem; padding: 5px; text-align: center; border: 2px solid #ccc; border-radius: 5px; }
+        .input-cant { width: 60px; font-size: 1.2rem; padding: 8px 5px; text-align: center; border: 2px solid #ccc; border-radius: 6px; font-weight: bold; color: #1a73e8; }
         .input-cant:focus { border-color: #1a73e8; outline: none; }
-
-        .btn-quitar { background: #ffebee; color: #d32f2f; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold;}
+        .btn-quitar { background: #fee8e7; color: #d32f2f; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: 0.2s; }
+        .btn-quitar:hover { background: #f8d0cb; }
         
-        /* Panel derecho (ajustado para scrolling interno) */
-        .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-y: auto; }
-        .total-box { background: #e8f0fe; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; border: 2px solid #1a73e8; flex-shrink: 0; }
-        .total-titulo { font-size: 1.5rem; color: #5f6368; margin-bottom: 10px; }
-        .total-monto { font-size: 4rem; font-weight: bold; color: #1a73e8; margin: 0; }
+        /* Panel derecho optimizado */
+        .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
         
-        .metodos-pago { display: flex; flex-direction: column; gap: 15px; margin-top: auto; }
-        .metodos-pago p { font-size: 1.2rem; margin: 0 0 5px 0; font-weight: bold; text-align: center; color: #5f6368;}
-        .btn-pago { padding: 20px; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; color: white; white-space: normal; }
-        .btn-efectivo { background-color: #34a853; }
-        .btn-efectivo:hover { background-color: #2d8c45; }
+        .total-box { background: #f8fbff; padding: 25px 15px; border-radius: 12px; text-align: center; margin-bottom: 20px; border: 2px solid #1a73e8; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; }
+        .total-titulo { font-size: 1.4rem; color: #5f6368; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Solución al centrado del signo pesos */
+        .total-monto-container { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
+        .signo-peso { font-size: 2.5rem; color: #1a73e8; font-weight: bold; }
+        .total-monto { font-size: 4.5rem; font-weight: 800; color: #1a73e8; line-height: 1; margin: 0; letter-spacing: -1px; }
+        
+        /* Cuadrícula de botones para evitar desbordes */
+        .seccion-cobro { display: flex; flex-direction: column; flex: 1; justify-content: flex-end; }
+        .metodos-pago { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; }
+        .btn-pago { padding: 18px 10px; font-size: 1.2rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-pago:active { transform: scale(0.98); }
+        
+        /* Colores de botones */
+        .btn-efectivo { background-color: #34a853; grid-column: span 2; padding: 25px 10px; font-size: 1.5rem; }
+        .btn-efectivo:hover { background-color: #2b8a44; }
         .btn-mp { background-color: #009ee3; }
         .btn-mp:hover { background-color: #0087c1; }
-        .btn-fiado { background-color: #ea4335; }
+        .btn-mixto { background-color: #673ab7; }
+        .btn-mixto:hover { background-color: #552f99; }
+        .btn-fiado { background-color: #ea4335; grid-column: span 2; }
         .btn-fiado:hover { background-color: #c53929; }
-        .btn-pago:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .btn-pago:disabled { background-color: #e0e0e0; color: #9e9e9e; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        /* Modal */
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; }
-        .modal { background: white; padding: 30px; border-radius: 10px; width: 80%; max-width: 600px; text-align: center; max-height: 80vh; display: flex; flex-direction: column;}
-        .modal h2 { font-size: 1.8rem; margin-top: 0; }
-        #resultados-busqueda { overflow-y: auto; text-align: left; margin-bottom: 20px; }
-        .item-busqueda { padding: 15px; border-bottom: 1px solid #eee; font-size: 1.4rem; cursor: pointer; display: flex; justify-content: space-between; }
-        .item-busqueda:hover { background-color: #f1f3f4; }
-        .btn-cerrar-modal { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border-radius: 8px; border: 1px solid #ccc; background: #eee; }
+        /* Modales (Popups) compartidos */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal h2 { font-size: 1.8rem; margin-top: 0; color: #202124; }
+        
+        /* Estilos específicos Modal Búsqueda */
+        #resultados-busqueda { overflow-y: auto; text-align: left; margin-bottom: 20px; max-height: 300px; }
+        .item-busqueda { padding: 15px; border-bottom: 1px solid #eee; font-size: 1.3rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; border-radius: 6px; }
+        .item-busqueda:hover { background-color: #f8fbff; padding-left: 20px; }
+        
+        /* Estilos específicos Modal Mixto */
+        .modal-mixto-cuerpo { text-align: left; margin-top: 20px; }
+        .grupo-input-mixto { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .grupo-input-mixto label { font-size: 1.3rem; font-weight: 600; color: #3c4043; }
+        .input-dinero { font-size: 1.5rem; width: 140px; padding: 8px; text-align: right; border: 2px solid #ccc; border-radius: 6px; font-weight: bold; color: #1a73e8; }
+        .input-dinero:focus { border-color: #1a73e8; outline: none; }
+        
+        .acciones-modal { display: flex; gap: 15px; margin-top: 25px; }
+        .btn-modal { flex: 1; padding: 15px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; }
+        .btn-confirmar { background-color: #1a73e8; }
+        .btn-cancelar { background-color: #9e9e9e; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>Mi Kiosco - Punto de Venta</h1>
-        <div id="estado">Cargando productos...</div>
+        <div id="estado">Cargando sistema...</div>
     </div>
 
     <div class="main-container">
         <!-- Panel Izquierdo -->
         <div class="panel-izquierdo">
             <div class="buscador-container">
-                <input type="text" id="input-buscador" placeholder="Pase el código de barras o busque nombre..." autocomplete="off">
+                <input type="text" id="input-buscador" placeholder="Pase el código de barras o busque nombre del producto..." autocomplete="off">
             </div>
             
             <div class="ticket-container">
@@ -83,11 +106,11 @@
                             <th class="col-cant">Cant.</th>
                             <th class="col-precio">Precio</th>
                             <th class="col-precio">Subtotal</th>
-                            <th class="col-cant">Quitar</th>
+                            <th class="col-quitar"></th>
                         </tr>
                     </thead>
                     <tbody id="lista-ticket">
-                        <!-- Acá se agregan los productos -->
+                        <!-- Productos se insertan acá -->
                     </tbody>
                 </table>
             </div>
@@ -97,29 +120,68 @@
         <div class="panel-derecho">
             <div class="total-box">
                 <div class="total-titulo">TOTAL A COBRAR</div>
-                <div class="total-monto">$ <span id="monto-total">0.00</span></div>
+                <div class="total-monto-container">
+                    <span class="signo-peso">$</span>
+                    <span id="monto-total">0.00</span>
+                </div>
             </div>
             
-            <div class="metodos-pago">
-                <p>Cobrar usando:</p>
-                <button class="btn-pago btn-efectivo" onclick="procesarVenta('Efectivo')" id="btn-efectivo" disabled>EFECTIVO</button>
-                <button class="btn-pago btn-mp" onclick="procesarVenta('MercadoPago/Transf')" id="btn-mp" disabled>MERCADO PAGO / TRANSF.</button>
-                <button class="btn-pago btn-fiado" onclick="procesarVenta('Fiado')" id="btn-fiado" disabled>LIBRETA (FIADO)</button>
+            <div class="seccion-cobro">
+                <div class="metodos-pago">
+                    <button class="btn-pago btn-efectivo" onclick="procesarVenta('Efectivo')" id="btn-efectivo" disabled>EFECTIVO</button>
+                    
+                    <button class="btn-pago btn-mp" onclick="procesarVenta('MercadoPago/Transf')" id="btn-mp" disabled>TRANSF. / MP</button>
+                    <button class="btn-pago btn-mixto" onclick="abrirModalMixto()" id="btn-mixto" disabled>PAGO DIVIDIDO</button>
+                    
+                    <button class="btn-pago btn-fiado" onclick="procesarVenta('Fiado')" id="btn-fiado" disabled>LIBRETA (FIADO)</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Resultados -->
+    <!-- Modal Resultados de Búsqueda -->
     <div class="overlay" id="modal-busqueda">
         <div class="modal">
             <h2>Seleccione un producto</h2>
             <div id="resultados-busqueda"></div>
-            <button class="btn-cerrar-modal" onclick="cerrarModal()">Cancelar Búsqueda</button>
+            <div class="acciones-modal">
+                <button class="btn-modal btn-cancelar" onclick="cerrarModalBusqueda()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pago Mixto -->
+    <div class="overlay" id="modal-mixto">
+        <div class="modal">
+            <h2>Dividir Pago</h2>
+            <p style="font-size: 1.2rem; color: #5f6368; margin-top: 5px;">Total a cubrir: <strong>$<span id="total-mixto-display">0.00</span></strong></p>
+            
+            <div class="modal-mixto-cuerpo">
+                <div class="grupo-input-mixto">
+                    <label>En Efectivo:</label>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 1.5rem; color:#5f6368">$</span>
+                        <input type="number" id="input-mixto-efectivo" class="input-dinero" oninput="calcularMixto('efectivo')" min="0">
+                    </div>
+                </div>
+                <div class="grupo-input-mixto">
+                    <label>Transferencia / MP:</label>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 1.5rem; color:#5f6368">$</span>
+                        <input type="number" id="input-mixto-mp" class="input-dinero" oninput="calcularMixto('mp')" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="acciones-modal">
+                <button class="btn-modal btn-cancelar" onclick="cerrarModalMixto()">Cancelar</button>
+                <button class="btn-modal btn-confirmar" onclick="procesarVentaMixta()">Confirmar Cobro</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // URL de tu Apps Script
+        // Tu URL de Google Apps Script
         const API_URL = 'https://script.google.com/macros/s/AKfycbxexVf3IwuHslc81f_ZH_jysy6GSnLrmZYOoVz9hECgMbrE-QxiqkE5P5QekxFI-iCDNg/exec';
         
         let catalogoProductos = []; 
@@ -137,20 +199,14 @@
             obtenerProductosDeSheets();
         };
 
-        // Función para limpiar precios con comas (Soluciona el NaN)
         function limpiarPrecio(precio) {
             if (!precio) return 0;
             let str = String(precio).trim().replace('$', '');
-            // Formato argentino: 2.390,50
             if (str.includes(',') && str.indexOf(',') > str.indexOf('.')) {
                 str = str.replace(/\./g, '').replace(',', '.');
-            } 
-            // Formato americano (el que te manda Sheets por defecto): 2,390.50
-            else if (str.includes(',') && str.indexOf('.') > str.indexOf(',')) {
+            } else if (str.includes(',') && str.indexOf('.') > str.indexOf(',')) {
                 str = str.replace(/,/g, '');
-            }
-            // Formato solo coma decimal: 2390,50
-            else if (str.includes(',') && !str.includes('.')) {
+            } else if (str.includes(',') && !str.includes('.')) {
                 str = str.replace(',', '.');
             }
             return parseFloat(str) || 0;
@@ -161,12 +217,12 @@
                 .then(response => response.json())
                 .then(data => {
                     catalogoProductos = data;
-                    estadoDiv.innerText = `Listo - ${catalogoProductos.length} productos cargados`;
+                    estadoDiv.innerText = `Listo - ${catalogoProductos.length} productos`;
                     estadoDiv.style.backgroundColor = '#e6f4ea';
                     estadoDiv.style.color = '#137333';
                 })
                 .catch(error => {
-                    estadoDiv.innerText = 'Error sin conexión. Revise internet.';
+                    estadoDiv.innerText = 'Error de conexión';
                     estadoDiv.style.backgroundColor = '#fce8e6';
                     estadoDiv.style.color = '#c5221f';
                 });
@@ -182,7 +238,6 @@
 
         function buscarProducto(textoBusqueda) {
             if (textoBusqueda === "") return;
-            
             let productoEncontrado = catalogoProductos.find(p => p.codigo === textoBusqueda);
             
             if (productoEncontrado) {
@@ -199,14 +254,14 @@
                 } else if (resultados.length > 1) {
                     mostrarModalBusqueda(resultados);
                 } else {
-                    alert("Producto no encontrado.");
+                    alert("No se encontró el producto.");
                 }
             }
         }
 
         function agregarAlTicket(producto) {
             let itemExistente = ticketActual.find(i => i.codigo === producto.codigo);
-            let precioReal = limpiarPrecio(producto.precioVenta); // Usamos el filtro acá
+            let precioReal = limpiarPrecio(producto.precioVenta);
 
             if (itemExistente) {
                 itemExistente.cantidad++;
@@ -223,12 +278,9 @@
             actualizarVistaTicket();
         }
 
-        // Función nueva para cambiar cantidad a mano
         function cambiarCantidad(index, valorInput) {
             let nuevaCant = parseInt(valorInput);
-            if (isNaN(nuevaCant) || nuevaCant < 1) {
-                nuevaCant = 1; // Mínimo 1 producto
-            }
+            if (isNaN(nuevaCant) || nuevaCant < 1) nuevaCant = 1;
             ticketActual[index].cantidad = nuevaCant;
             ticketActual[index].total = nuevaCant * ticketActual[index].precioUnitario;
             actualizarVistaTicket();
@@ -245,32 +297,33 @@
 
             ticketActual.forEach((item, index) => {
                 totalTicket += item.total;
-                
                 let fila = document.createElement('tr');
                 fila.innerHTML = `
-                    <td>${item.nombre}</td>
+                    <td><strong>${item.nombre}</strong></td>
                     <td class="col-cant">
                         <input type="number" class="input-cant" value="${item.cantidad}" min="1" 
                         onchange="cambiarCantidad(${index}, this.value)" 
                         onkeyup="if(event.key === 'Enter') { cambiarCantidad(${index}, this.value); document.getElementById('input-buscador').focus(); }">
                     </td>
                     <td class="col-precio">$${item.precioUnitario.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
-                    <td class="col-precio"><strong>$${item.total.toLocaleString('es-AR', {minimumFractionDigits: 2})}</strong></td>
-                    <td class="col-cant"><button class="btn-quitar" onclick="quitarDelTicket(${index})">X</button></td>
+                    <td class="col-precio" style="font-weight:bold; color:#1a73e8;">$${item.total.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
+                    <td class="col-quitar"><button class="btn-quitar" onclick="quitarDelTicket(${index})">X</button></td>
                 `;
                 listaTicket.appendChild(fila);
             });
 
+            // Formatear total eliminando decimales si son .00 para una lectura más limpia si prefieren
             spanTotal.innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
             
             botonesPago.forEach(btn => btn.disabled = (ticketActual.length === 0));
             inputBuscador.focus();
         }
 
+        // --- Lógica Principal de Venta ---
         function procesarVenta(metodoPago) {
             if (ticketActual.length === 0) return;
 
-            estadoDiv.innerText = 'Guardando venta...';
+            estadoDiv.innerText = 'Registrando...';
             estadoDiv.style.backgroundColor = '#fff3e0';
             estadoDiv.style.color = '#fbbc05';
 
@@ -293,18 +346,66 @@
                 if(data.status === 'success') {
                     ticketActual = [];
                     actualizarVistaTicket();
-                    estadoDiv.innerText = `¡Venta Cobrada! (${metodoPago})`;
+                    estadoDiv.innerText = `¡Cobro exitoso!`;
                     estadoDiv.style.backgroundColor = '#e6f4ea';
                     estadoDiv.style.color = '#137333';
                     setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
                 } else throw new Error("Error del servidor");
             })
             .catch(error => {
-                alert("Hubo un error al guardar la venta. ¿Hay internet?");
+                alert("Hubo un error al guardar la venta. Intente de nuevo.");
                 estadoDiv.innerText = 'Error al guardar';
             });
         }
 
+        // --- Lógica Pago Mixto ---
+        function abrirModalMixto() {
+            if (ticketActual.length === 0) return;
+            document.getElementById('total-mixto-display').innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
+            document.getElementById('input-mixto-efectivo').value = totalTicket;
+            document.getElementById('input-mixto-mp').value = 0;
+            document.getElementById('modal-mixto').style.display = 'flex';
+            document.getElementById('input-mixto-efectivo').select(); // Selecciona el monto para que sea fácil pisarlo
+        }
+
+        function calcularMixto(modificado) {
+            let efectivoInput = document.getElementById('input-mixto-efectivo');
+            let mpInput = document.getElementById('input-mixto-mp');
+            
+            let valEfectivo = parseFloat(efectivoInput.value) || 0;
+            let valMp = parseFloat(mpInput.value) || 0;
+
+            if (modificado === 'efectivo') {
+                let resto = totalTicket - valEfectivo;
+                mpInput.value = resto > 0 ? resto.toFixed(2) : 0;
+            } else if (modificado === 'mp') {
+                let resto = totalTicket - valMp;
+                efectivoInput.value = resto > 0 ? resto.toFixed(2) : 0;
+            }
+        }
+
+        function procesarVentaMixta() {
+            let valEfectivo = parseFloat(document.getElementById('input-mixto-efectivo').value) || 0;
+            let valMp = parseFloat(document.getElementById('input-mixto-mp').value) || 0;
+            let suma = valEfectivo + valMp;
+
+            // Evitar problemas de redondeo en decimales
+            if (Math.abs(suma - totalTicket) > 0.5) {
+                alert("Atención: Los montos ingresados no suman el total del ticket.");
+                return;
+            }
+
+            let detalleMetodo = `Mixto (Efe: $${valEfectivo} / MP: $${valMp})`;
+            cerrarModalMixto();
+            procesarVenta(detalleMetodo);
+        }
+
+        function cerrarModalMixto() {
+            document.getElementById('modal-mixto').style.display = 'none';
+            inputBuscador.focus();
+        }
+
+        // --- Lógica Búsqueda Manual ---
         function mostrarModalBusqueda(resultados) {
             let contResultados = document.getElementById('resultados-busqueda');
             contResultados.innerHTML = '';
@@ -313,24 +414,26 @@
                 let div = document.createElement('div');
                 div.className = 'item-busqueda';
                 let precioLimpio = limpiarPrecio(prod.precioVenta);
-                div.innerHTML = `<span>${prod.nombre}</span> <strong>$${precioLimpio.toLocaleString('es-AR', {minimumFractionDigits: 2})}</strong>`;
+                div.innerHTML = `<span><strong>${prod.nombre}</strong></span> <span style="color:#1a73e8; font-weight:bold;">$${precioLimpio.toLocaleString('es-AR', {minimumFractionDigits: 2})}</span>`;
                 div.onclick = () => {
                     agregarAlTicket(prod);
-                    cerrarModal();
+                    cerrarModalBusqueda();
                 };
                 contResultados.appendChild(div);
             });
-            
             document.getElementById('modal-busqueda').style.display = 'flex';
         }
 
-        function cerrarModal() {
+        function cerrarModalBusqueda() {
             document.getElementById('modal-busqueda').style.display = 'none';
             inputBuscador.focus();
         }
         
+        // Mantener foco en el buscador
         document.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && document.getElementById('modal-busqueda').style.display === 'none') {
+            let isModalOpen = document.getElementById('modal-busqueda').style.display === 'flex' || 
+                              document.getElementById('modal-mixto').style.display === 'flex';
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && !isModalOpen) {
                  inputBuscador.focus();
             }
         });
