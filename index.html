@@ -86,7 +86,7 @@
         <div id="estado">Cargando sistema...</div>
     </div>
 
-    <!-- MAIN POS (Mismo de siempre) -->
+    <!-- MAIN POS -->
     <div class="main-container">
         <div class="panel-izquierdo">
             <div class="buscador-container"><input type="text" id="input-buscador" placeholder="Pase el código o busque..." autocomplete="off"></div>
@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    <!-- Modales Anteriores Ocultos -->
+    <!-- Modales de Venta -->
     <div class="overlay" id="modal-busqueda"><div class="modal"><h2>Seleccione un producto</h2><div id="resultados-busqueda" class="lista-scroll"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-busqueda')">Cancelar</button></div></div></div>
     <div class="overlay" id="modal-clientes"><div class="modal"><h2>¿A quién le fiamos?</h2><div id="lista-clientes-div" class="lista-scroll"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-clientes')">Cancelar</button></div></div></div>
     <div class="overlay" id="modal-descuento"><div class="modal"><h2>Aplicar Descuento</h2><div style="display:flex; justify-content:center; gap:5px; margin-bottom:15px;"><span style="font-size:2rem;">$</span><input type="number" id="input-valor-descuento" class="input-dinero"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-descuento')">Cancelar</button><button class="btn-modal" style="background-color: #f29900;" onclick="aplicarDescuento()">Aplicar</button></div></div></div>
@@ -123,90 +123,65 @@
     <div class="overlay" id="modal-pagar-deuda"><div class="modal"><h2>Pago Libreta</h2><div class="grupo-input"><label>Cliente:</label><select id="select-cliente-pago" class="input-dinero"></select></div><div class="grupo-input"><label>Monto:</label><input type="number" id="input-monto-deuda" class="input-dinero"></div><div class="acciones-modal"><button class="btn-modal" style="background-color: #34a853;" onclick="enviarPagoDeuda('Efectivo')">EFECTIVO</button><button class="btn-modal" style="background-color: #009ee3;" onclick="enviarPagoDeuda('MP')">MP</button><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-pagar-deuda')">Cancelar</button></div></div></div>
     <div class="overlay" id="modal-mixto"><div class="modal"><h2>Dividir Pago</h2><div class="grupo-input"><label>Efectivo:</label><input type="number" id="input-mixto-efectivo" class="input-dinero" oninput="calcularMixto('efectivo')"></div><div class="grupo-input"><label>Transf / MP:</label><input type="number" id="input-mixto-mp" class="input-dinero" oninput="calcularMixto('mp')"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-mixto')">Cancelar</button><button class="btn-modal btn-confirmar" onclick="procesarVentaMixta()">Confirmar</button></div></div></div>
 
-    <!-- NUEVO: MODAL RETIRO DE CAJA -->
+    <!-- RETIRO DE CAJA -->
     <div class="overlay" id="modal-retiro">
         <div class="modal">
             <h2 style="color: #d32f2f;">Retiro de Caja</h2>
-            <div class="grupo-input">
-                <label>Motivo del Retiro:</label>
-                <input type="text" id="retiro-motivo" class="input-dinero" placeholder="Ej: Pago de luz, Retiro personal...">
-            </div>
-            <div class="grupo-input">
-                <label>Monto a Retirar:</label>
-                <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem;">$</span><input type="number" id="retiro-monto" class="input-dinero" style="width:100%;"></div>
-            </div>
-            <div class="grupo-input">
-                <label>Sacar el dinero de:</label>
-                <select id="retiro-metodo" class="input-dinero"><option value="Efectivo">Caja Física (Efectivo)</option><option value="MP">Cuenta Digital (MP)</option></select>
-            </div>
-            <div class="acciones-modal">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-retiro')">Cancelar</button>
-                <button class="btn-modal" style="background-color: #d32f2f;" onclick="procesarRetiro()">Registrar Retiro</button>
-            </div>
+            <div class="grupo-input"><label>Motivo del Retiro:</label><input type="text" id="retiro-motivo" class="input-dinero" placeholder="Ej: Pago de luz, Retiro personal..."></div>
+            <div class="grupo-input"><label>Monto a Retirar:</label><div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem;">$</span><input type="number" id="retiro-monto" class="input-dinero" style="width:100%;"></div></div>
+            <div class="grupo-input"><label>Sacar el dinero de:</label><select id="retiro-metodo" class="input-dinero"><option value="Efectivo">Caja Física (Efectivo)</option><option value="MP">Cuenta Digital (MP)</option></select></div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-retiro')">Cancelar</button><button class="btn-modal" style="background-color: #d32f2f;" onclick="procesarRetiro()">Registrar Retiro</button></div>
         </div>
     </div>
 
-    <!-- NUEVO: MODAL INGRESOS / COMPRAS -->
+    <!-- INGRESOS / COMPRAS -->
     <div class="overlay" id="modal-compra">
         <div class="modal">
             <h2 style="color: #673ab7;">Ingreso de Mercadería</h2>
-            
             <div style="display:flex; gap:10px;">
-                <div class="grupo-input" style="flex:2;"><label>Proveedor (Opcional):</label><input type="text" id="compra-prov" class="input-dinero" placeholder="Ej: Coca Cola"></div>
+                <div class="grupo-input" style="flex:2;"><label>Proveedor:</label><input type="text" id="compra-prov" class="input-dinero" placeholder="Opcional"></div>
                 <div class="grupo-input" style="flex:1;"><label>Pagado con:</label><select id="compra-metodo" class="input-dinero"><option value="Efectivo">Efectivo</option><option value="MP">Transf/MP</option></select></div>
             </div>
-            <div class="grupo-input">
-                <label style="color:#d32f2f;">Total Factura Pagada (Se descontará de la caja):</label>
-                <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem; color:#d32f2f;">$</span><input type="number" id="compra-total" class="input-dinero" style="width:100%; font-weight:bold;"></div>
-            </div>
+            <div class="grupo-input"><label style="color:#d32f2f;">Total Factura Pagada (Se restará de caja):</label><div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem; color:#d32f2f;">$</span><input type="number" id="compra-total" class="input-dinero" style="width:100%; font-weight:bold;"></div></div>
 
             <hr style="border: 0; border-top: 2px dashed #eee; margin: 15px 0;">
             <h3 style="margin: 0 0 10px 0; font-size:1.1rem;">1. Cargar Items al Stock</h3>
-            <input type="text" id="input-buscador-compra" class="input-dinero" style="width:95%; border-color:#673ab7;" placeholder="Escaneá o buscá para cargar stock..." autocomplete="off">
+            <input type="text" id="input-buscador-compra" class="input-dinero" style="width:95%; border-color:#673ab7;" placeholder="Escaneá el producto que entró..." autocomplete="off">
             
             <div style="max-height: 150px; overflow-y: auto; border:1px solid #ccc; border-radius:6px; margin-top:10px;">
-                <table class="tabla-mini">
-                    <thead><tr><th>Producto</th><th>Ingresan</th><th></th></tr></thead>
-                    <tbody id="lista-items-compra"></tbody>
-                </table>
+                <table class="tabla-mini"><thead><tr><th>Producto</th><th>Cant.</th><th>Costo</th><th></th></tr></thead><tbody id="lista-items-compra"></tbody></table>
             </div>
 
             <div class="acciones-modal">
                 <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-compra')">Cerrar</button>
-                <button class="btn-modal" style="background-color: #673ab7;" onclick="guardarCompra()">💾 Guardar Factura y Stock</button>
+                <button class="btn-modal" style="background-color: #673ab7;" onclick="guardarCompra()">💾 Guardar Factura</button>
             </div>
         </div>
     </div>
 
-    <!-- NUEVO: MODAL CREAR PRODUCTO DESDE COMPRA -->
+    <!-- MODAL INGRESO EXISTENTE (PIDE CANTIDAD Y COSTO NUEVO) -->
+    <div class="overlay" id="modal-ingreso-stock">
+        <div class="modal">
+            <h2 id="ingreso-stock-titulo" style="color: #673ab7;">Actualizar Stock</h2>
+            <p style="font-size:0.9rem; color:#5f6368; margin-top:0;">El precio de venta se calculará solo en Excel usando tu margen.</p>
+            <div class="grupo-input"><label>Cantidad que ingresa:</label><input type="number" id="ingreso-stock-cant" class="input-dinero" step="any" min="0.001"></div>
+            <div class="grupo-input"><label>Nuevo Costo Unitario ($):</label><input type="number" id="ingreso-stock-costo" class="input-dinero" step="any" min="0"></div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-ingreso-stock'); document.getElementById('input-buscador-compra').focus();">Cancelar</button><button class="btn-modal btn-confirmar" onclick="confirmarIngresoStock()">Confirmar Ingreso</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL CREAR PRODUCTO DESDE COMPRA -->
     <div class="overlay" id="modal-nuevo-prod">
         <div class="modal">
             <h2>Crear Producto Nuevo</h2>
-            <p style="font-size:0.9rem; color:#5f6368; margin-top:0;">El código no existe. Cargalo rápido para ingresarlo al stock.</p>
-            
-            <div style="display:flex; gap:10px;">
-                <div class="grupo-input" style="flex:1;"><label>Código:</label><input type="text" id="nuevo-prod-cod" class="input-dinero" readonly style="background:#eee;"></div>
-                <div class="grupo-input" style="flex:2;"><label>Nombre:</label><input type="text" id="nuevo-prod-nom" class="input-dinero"></div>
-            </div>
-            
-            <div style="display:flex; gap:10px;">
-                <div class="grupo-input"><label>Costo ($):</label><input type="number" id="nuevo-prod-costo" class="input-dinero" oninput="calcularPrecioVentaModal()"></div>
-                <div class="grupo-input"><label>Margen (%):</label><input type="number" id="nuevo-prod-margen" class="input-dinero" value="30" oninput="calcularPrecioVentaModal()"></div>
-            </div>
-            
-            <div style="display:flex; gap:10px;">
-                <div class="grupo-input"><label>Precio Venta (Auto):</label><input type="number" id="nuevo-prod-venta" class="input-dinero" readonly style="background:#e6f4ea; font-weight:bold; color:#137333;"></div>
-                <div class="grupo-input"><label style="color:#673ab7;">Cant. Comprada:</label><input type="number" id="nuevo-prod-cant" class="input-dinero" style="border-color:#673ab7;" step="any"></div>
-            </div>
-
-            <div class="acciones-modal">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-nuevo-prod'); document.getElementById('input-buscador-compra').focus();">Cancelar</button>
-                <button class="btn-modal btn-confirmar" onclick="agregarNuevoProductoACompra()">Crear y Añadir</button>
-            </div>
+            <div style="display:flex; gap:10px;"><div class="grupo-input" style="flex:1;"><label>Código:</label><input type="text" id="nuevo-prod-cod" class="input-dinero" readonly style="background:#eee;"></div><div class="grupo-input" style="flex:2;"><label>Nombre:</label><input type="text" id="nuevo-prod-nom" class="input-dinero"></div></div>
+            <div style="display:flex; gap:10px;"><div class="grupo-input"><label>Costo ($):</label><input type="number" id="nuevo-prod-costo" class="input-dinero" oninput="calcularPrecioVentaModal()"></div><div class="grupo-input"><label>Margen (%):</label><input type="number" id="nuevo-prod-margen" class="input-dinero" value="30" oninput="calcularPrecioVentaModal()"></div></div>
+            <div style="display:flex; gap:10px;"><div class="grupo-input"><label>Precio Venta (Aprox):</label><input type="number" id="nuevo-prod-venta" class="input-dinero" readonly style="background:#e6f4ea; font-weight:bold; color:#137333;"></div><div class="grupo-input"><label style="color:#673ab7;">Cant. Comprada:</label><input type="number" id="nuevo-prod-cant" class="input-dinero" style="border-color:#673ab7;" step="any"></div></div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-nuevo-prod'); document.getElementById('input-buscador-compra').focus();">Cancelar</button><button class="btn-modal btn-confirmar" onclick="agregarNuevoProductoACompra()">Crear y Añadir</button></div>
         </div>
     </div>
 
-    <!-- CIERRE DE CAJA ACTUALIZADO -->
+    <!-- CIERRE DE CAJA (AHORA DETALLA TODO) -->
     <div class="overlay" id="modal-cierre">
         <div class="modal">
             <h2 style="color: #f29900; font-size: 2rem; margin-bottom: 5px;">Arqueo de Caja</h2>
@@ -217,28 +192,26 @@
                 <div style="font-size: 0.95rem; color: #d32f2f; padding-bottom: 8px; border-bottom: 1px solid #ccc; margin-bottom: 8px;">🔴 Menos Proveedores (Efe): <span id="cierre-compras-efe" style="float: right;">-$0.00</span></div>
                 
                 <div style="font-size: 1.3rem; font-weight: bold; color: #34a853; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #ccc;">
-                    💵 EFECTIVO FÍSICO EN CAJA: <span id="cierre-efe-total" style="float: right;">$0.00</span>
+                    💵 EFECTIVO EN CAJA: <span id="cierre-efe-total" style="float: right;">$0.00</span>
                 </div>
                 
-                <div class="texto-arqueo">📱 Transf/MP Neto (Ingresos - Gastos): <span id="cierre-mp" style="color: #009ee3; float: right; font-weight:bold;">$0.00</span></div>
+                <div class="texto-arqueo">📱 Transf/MP Neto (Ventas - Pagos): <span id="cierre-mp" style="color: #009ee3; float: right; font-weight:bold;">$0.00</span></div>
                 
                 <div style="font-size: 1.4rem; font-weight: bold; color: #1a73e8; margin-top: 5px;">
                     💰 BALANCE GENERAL TOTAL: <span id="cierre-total" style="float: right;">$0.00</span>
                 </div>
             </div>
-            <div class="acciones-modal">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-cierre')">Cerrar</button>
-                <button class="btn-modal" style="background-color: #f29900;" onclick="guardarCierreEnPlanilla()">💾 Guardar Cierre</button>
-            </div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-cierre')">Cerrar</button><button class="btn-modal" style="background-color: #f29900;" onclick="guardarCierreEnPlanilla()">💾 Guardar Cierre</button></div>
         </div>
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzD79l0yVW61s6iYCAXimkoRzGstx88tZvGDrSvcPHmwRhnGKY1utpo1GBuSYfKtoS1lg/exec'; // <-- ACÁ TU URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwZvT_W7qON4AyH9ih3UKw-AhiUX0YwT5T7_fM0mm9QaxrkCTKSOSSKEhaBdoV4_qDbpg/exec'; // <-- ACÁ TU URL DE APPS SCRIPT
         
         let catalogoProductos = [], directorioClientes = [], ticketActual = [], subtotalTicket = 0, descuentoActual = 0, totalTicket = 0;
         let datosCierreActual = {}; 
-        let itemsCompraTemporal = []; // Para el modal de compras
+        let itemsCompraTemporal = []; 
+        let productoEnFoco = null;
 
         const inputBuscador = document.getElementById('input-buscador');
         const estadoDiv = document.getElementById('estado');
@@ -247,9 +220,7 @@
 
         window.onload = function() { inputBuscador.focus(); obtenerDatosDeSheets(); };
 
-        function setEstado(texto, colorFondo, colorTexto) {
-            estadoDiv.innerText = texto; estadoDiv.style.backgroundColor = colorFondo; estadoDiv.style.color = colorTexto;
-        }
+        function setEstado(texto, colorFondo, colorTexto) { estadoDiv.innerText = texto; estadoDiv.style.backgroundColor = colorFondo; estadoDiv.style.color = colorTexto; }
 
         function limpiarPrecio(precio) {
             if (!precio) return 0;
@@ -265,19 +236,16 @@
             fetch(`${API_URL}?accion=obtenerClientes`).then(r => r.json()).then(data => { directorioClientes = data; });
         }
 
-        /* ----- LÓGICA DEL POS PRINCIPAL (VENTAS) ----- */
-        inputBuscador.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); buscarProductoVenta(this.value.trim()); this.value = ''; }
-        });
+        /* ----- POS PRINCIPAL ----- */
+        inputBuscador.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); buscarProductoVenta(this.value.trim()); this.value = ''; } });
 
         function buscarProductoVenta(texto) {
             if (!texto) return;
             let p = catalogoProductos.find(p => p.codigo === texto);
             if (p) agregarAlTicket(p);
             else {
-                let textoL = texto.toLowerCase();
-                let res = catalogoProductos.filter(p => p.nombre.toLowerCase().includes(textoL) || p.codigo.includes(textoL));
-                if (res.length === 1) agregarAlTicket(res[0]); else if (res.length > 1) mostrarModalBusqueda(res); else alert("Producto no encontrado en inventario.");
+                let res = catalogoProductos.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase()) || p.codigo.includes(texto.toLowerCase()));
+                if (res.length === 1) agregarAlTicket(res[0]); else if (res.length > 1) mostrarModalBusqueda(res); else alert("Producto no encontrado.");
             }
         }
 
@@ -290,12 +258,7 @@
             actualizarVistaTicket();
         }
 
-        function cambiarCantidad(index, val) {
-            let cant = parseFloat(val); if (isNaN(cant) || cant <= 0) cant = 1;
-            ticketActual[index].cantidad = cant; ticketActual[index].total = cant * ticketActual[index].precioUnitario;
-            actualizarVistaTicket();
-        }
-
+        function cambiarCantidad(index, val) { let cant = parseFloat(val); if (isNaN(cant) || cant <= 0) cant = 1; ticketActual[index].cantidad = cant; ticketActual[index].total = cant * ticketActual[index].precioUnitario; actualizarVistaTicket(); }
         function quitarDelTicket(index) { ticketActual.splice(index, 1); actualizarVistaTicket(); }
 
         function actualizarVistaTicket() {
@@ -321,124 +284,88 @@
         }
         function prepararCobroUnico(t) { let p = {efectivo:0, mp:0, fiado:0}; if(t==='Efectivo') p.efectivo=totalTicket; else p.mp=totalTicket; enviarVentaAlMotor(p, ""); }
 
-        /* ----- MODALES Y FUNCIONES BÁSICAS EXISTENTES ----- */
+        /* ----- MODALES GENÉRICOS ----- */
         function cerrarModal(id) { document.getElementById(id).style.display = 'none'; inputBuscador.focus(); }
-        
         function abrirModalDescuento() { document.getElementById('input-valor-descuento').value=''; document.getElementById('modal-descuento').style.display='flex'; document.getElementById('input-valor-descuento').focus(); }
         function aplicarDescuento() { let m = parseFloat(document.getElementById('input-valor-descuento').value)||0; if(m<0 || m>=subtotalTicket) return alert("Monto inválido"); descuentoActual = m; cerrarModal('modal-descuento'); actualizarVistaTicket(); }
-        
         function abrirModalMixto() { document.getElementById('modal-mixto').style.display='flex'; }
         function calcularMixto(o) { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(o==='efectivo' && e<=totalTicket) document.getElementById('input-mixto-mp').value=(totalTicket-e).toFixed(2); else if(o==='mp' && m<=totalTicket) document.getElementById('input-mixto-efectivo').value=(totalTicket-m).toFixed(2); }
         function procesarVentaMixta() { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(Math.abs((e+m)-totalTicket)>0.5) return alert("No suma el total."); cerrarModal('modal-mixto'); enviarVentaAlMotor({efectivo:e, mp:m, fiado:0}, ""); }
-
         function abrirModalApertura() { document.getElementById('modal-apertura').style.display='flex'; }
         function guardarApertura() { let m = parseFloat(document.getElementById('input-fondo-inicial').value); fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarApertura', monto:m})}).then(()=>{cerrarModal('modal-apertura'); setEstado('Apertura ok', '#e6f4ea','#137333')}); }
 
-        /* ----- NUEVO: RETIRO DE CAJA ----- */
-        function abrirModalRetiro() {
-            document.getElementById('retiro-motivo').value = ''; document.getElementById('retiro-monto').value = '';
-            document.getElementById('modal-retiro').style.display = 'flex';
-        }
+        /* ----- RETIRO DE CAJA ----- */
+        function abrirModalRetiro() { document.getElementById('retiro-motivo').value = ''; document.getElementById('retiro-monto').value = ''; document.getElementById('modal-retiro').style.display = 'flex'; }
         function procesarRetiro() {
-            let motivo = document.getElementById('retiro-motivo').value;
-            let monto = parseFloat(document.getElementById('retiro-monto').value);
-            let metodo = document.getElementById('retiro-metodo').value;
+            let motivo = document.getElementById('retiro-motivo').value; let monto = parseFloat(document.getElementById('retiro-monto').value); let metodo = document.getElementById('retiro-metodo').value;
             if(!motivo || isNaN(monto) || monto <= 0) return alert("Completá todos los campos.");
-            
             setEstado('Registrando retiro...', '#fff3e0', '#fbbc05');
             fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarRetiro', retiro: {motivo:motivo, monto:monto, metodo:metodo}})}).then(r=>r.json()).then(d=>{
                 if(d.status==='success'){ cerrarModal('modal-retiro'); setEstado('Retiro Registrado', '#e6f4ea', '#137333'); }
             });
         }
 
-        /* ----- NUEVO: INGRESOS Y COMPRAS ----- */
+        /* ----- INGRESOS / COMPRAS ----- */
         function abrirModalCompra() {
-            itemsCompraTemporal = [];
-            document.getElementById('compra-prov').value = ''; document.getElementById('compra-total').value = '';
-            actualizarTablaCompras();
-            document.getElementById('modal-compra').style.display = 'flex';
-            document.getElementById('input-buscador-compra').focus();
+            itemsCompraTemporal = []; document.getElementById('compra-prov').value = ''; document.getElementById('compra-total').value = '';
+            actualizarTablaCompras(); document.getElementById('modal-compra').style.display = 'flex'; document.getElementById('input-buscador-compra').focus();
         }
 
-        // Buscador interno del modal de compras
         document.getElementById('input-buscador-compra').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault();
-                let cod = this.value.trim();
-                if(!cod) return;
-                
+                e.preventDefault(); let cod = this.value.trim(); if(!cod) return;
                 let prod = catalogoProductos.find(p => p.codigo === cod);
                 if(prod) {
-                    // Existe: pedimos cantidad a ingresar
-                    let cant = parseFloat(prompt(`Ingresando "${prod.nombre}". ¿Cuántas unidades/kg entraron?`));
-                    if(!isNaN(cant) && cant > 0) {
-                        itemsCompraTemporal.push({codigo: prod.codigo, nombre: prod.nombre, cantidad: cant, nuevo: false});
-                        actualizarTablaCompras();
-                    }
+                    productoEnFoco = prod;
+                    document.getElementById('ingreso-stock-titulo').innerText = "Ingreso de: " + prod.nombre;
+                    document.getElementById('ingreso-stock-cant').value = '';
+                    document.getElementById('ingreso-stock-costo').value = prod.precioCosto || 0;
+                    document.getElementById('modal-ingreso-stock').style.display = 'flex';
+                    document.getElementById('ingreso-stock-cant').focus();
                 } else {
-                    // No existe: abrimos modal para crear producto
-                    document.getElementById('nuevo-prod-cod').value = cod;
-                    document.getElementById('nuevo-prod-nom').value = '';
-                    document.getElementById('nuevo-prod-costo').value = '';
-                    document.getElementById('nuevo-prod-cant').value = '';
-                    document.getElementById('nuevo-prod-venta').value = '0.00';
-                    document.getElementById('modal-nuevo-prod').style.display = 'flex';
+                    document.getElementById('nuevo-prod-cod').value = cod; document.getElementById('nuevo-prod-nom').value = ''; document.getElementById('nuevo-prod-costo').value = '';
+                    document.getElementById('nuevo-prod-cant').value = ''; document.getElementById('nuevo-prod-venta').value = '0.00';
+                    document.getElementById('modal-nuevo-prod').style.display = 'flex'; document.getElementById('nuevo-prod-nom').focus();
                 }
                 this.value = ''; 
             }
         });
 
+        function confirmarIngresoStock() {
+            let cant = parseFloat(document.getElementById('ingreso-stock-cant').value);
+            let costo = parseFloat(document.getElementById('ingreso-stock-costo').value);
+            if(isNaN(cant) || cant <= 0) return alert("Ingrese cantidad válida.");
+            itemsCompraTemporal.push({ codigo: productoEnFoco.codigo, nombre: productoEnFoco.nombre, cantidad: cant, costo: costo, nuevo: false });
+            cerrarModal('modal-ingreso-stock'); actualizarTablaCompras(); document.getElementById('input-buscador-compra').focus();
+        }
+
         function calcularPrecioVentaModal() {
-            let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0;
-            let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0;
-            if(margen < 100) {
-                let pv = costo / (1 - (margen / 100));
-                document.getElementById('nuevo-prod-venta').value = pv.toFixed(2);
-            }
+            let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0; let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0;
+            if(margen < 100) document.getElementById('nuevo-prod-venta').value = (costo / (1 - (margen / 100))).toFixed(2);
         }
 
         function agregarNuevoProductoACompra() {
-            let cod = document.getElementById('nuevo-prod-cod').value;
-            let nom = document.getElementById('nuevo-prod-nom').value;
-            let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0;
-            let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0;
-            let cant = parseFloat(document.getElementById('nuevo-prod-cant').value) || 0;
-            
+            let cod = document.getElementById('nuevo-prod-cod').value; let nom = document.getElementById('nuevo-prod-nom').value;
+            let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0; let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0; let cant = parseFloat(document.getElementById('nuevo-prod-cant').value) || 0;
             if(!nom || cant <= 0) return alert("El nombre y la cantidad son obligatorios.");
-            
-            itemsCompraTemporal.push({
-                codigo: cod, nombre: nom, categoria: "General", 
-                precioCosto: costo, margen: (margen/100), 
-                cantidad: cant, nuevo: true
-            });
-            
-            cerrarModal('modal-nuevo-prod');
-            actualizarTablaCompras();
-            document.getElementById('input-buscador-compra').focus();
+            itemsCompraTemporal.push({ codigo: cod, nombre: nom, categoria: "General", costo: costo, margen: (margen/100), cantidad: cant, nuevo: true });
+            cerrarModal('modal-nuevo-prod'); actualizarTablaCompras(); document.getElementById('input-buscador-compra').focus();
         }
 
         function actualizarTablaCompras() {
             let body = document.getElementById('lista-items-compra'); body.innerHTML = '';
             itemsCompraTemporal.forEach((it, i) => {
                 let badge = it.nuevo ? '<span style="font-size:0.7rem; background:#137333; color:white; padding:2px 4px; border-radius:3px;">NUEVO</span>' : '';
-                body.innerHTML += `<tr><td>${it.nombre} ${badge}</td><td style="font-weight:bold;">+ ${it.cantidad}</td><td><button onclick="itemsCompraTemporal.splice(${i},1); actualizarTablaCompras()" style="background:#fce8e6; border:none; color:red; cursor:pointer;">X</button></td></tr>`;
+                body.innerHTML += `<tr><td>${it.nombre} ${badge}</td><td style="font-weight:bold;">+${it.cantidad}</td><td>$${it.costo}</td><td><button onclick="itemsCompraTemporal.splice(${i},1); actualizarTablaCompras()" style="background:#fce8e6; border:none; color:red; cursor:pointer;">X</button></td></tr>`;
             });
         }
 
         function guardarCompra() {
-            let prov = document.getElementById('compra-prov').value || "Varios";
-            let total = parseFloat(document.getElementById('compra-total').value);
-            let metodo = document.getElementById('compra-metodo').value;
-            
-            if(isNaN(total) || total < 0) return alert("Ingresá un monto de factura válido. (Poné 0 si fue canje/sin costo).");
-            
+            let prov = document.getElementById('compra-prov').value || "Varios"; let total = parseFloat(document.getElementById('compra-total').value); let metodo = document.getElementById('compra-metodo').value;
+            if(isNaN(total) || total < 0) return alert("Ingresá el monto pagado (0 si fue sin cargo).");
             setEstado('Procesando compra...', '#fff3e0', '#fbbc05');
             fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarCompra', compra: {proveedor:prov, total:total, metodo:metodo, detalle:itemsCompraTemporal}})}).then(r=>r.json()).then(d=>{
-                if(d.status==='success'){ 
-                    cerrarModal('modal-compra'); 
-                    setEstado('¡Stock y Gasto Registrado!', '#e6f4ea', '#137333'); 
-                    obtenerDatosDeSheets(); // Refresca inventario
-                }
+                if(d.status==='success'){ cerrarModal('modal-compra'); setEstado('¡Stock y Costos actualizados!', '#e6f4ea', '#137333'); obtenerDatosDeSheets(); }
             });
         }
 
@@ -449,14 +376,12 @@
                 datosCierreActual = data; 
                 document.getElementById('cierre-fondo').innerText = '$' + parseFloat(data.fondoInicial).toLocaleString('es-AR');
                 document.getElementById('cierre-ventas-efe').innerText = '$' + parseFloat(data.ventasEfectivo).toLocaleString('es-AR');
-                // Mostrar egresos
-                document.getElementById('cierre-retiros-efe').innerText = '-$' + parseFloat(data.gastosEfectivo || 0).toLocaleString('es-AR'); // Simplificado para visual
+                document.getElementById('cierre-retiros-efe').innerText = '-$' + parseFloat(data.retirosEfectivo).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-compras-efe').innerText = '-$' + parseFloat(data.comprasEfectivo).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-efe-total').innerText = '$' + parseFloat(data.efectivoEnCaja).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-mp').innerText = '$' + parseFloat(data.mp).toLocaleString('es-AR');
                 document.getElementById('cierre-total').innerText = '$' + parseFloat(data.totalReal).toLocaleString('es-AR', {minimumFractionDigits: 2});
-
-                setEstado(`Listo`, '#e6f4ea', '#137333');
-                document.getElementById('modal-cierre').style.display = 'flex';
+                setEstado(`Listo`, '#e6f4ea', '#137333'); document.getElementById('modal-cierre').style.display = 'flex';
             });
         }
         function guardarCierreEnPlanilla() {
@@ -464,10 +389,7 @@
             fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarCierre', cierre:datosCierreActual})}).then(()=>{cerrarModal('modal-cierre'); setEstado('Cierre Guardado', '#e6f4ea','#137333')});
         }
         
-        document.addEventListener('click', function(e) {
-            let mod = document.querySelectorAll('.overlay[style="display: flex;"]');
-            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && mod.length === 0) inputBuscador.focus();
-        });
+        document.addEventListener('click', function(e) { let mod = document.querySelectorAll('.overlay[style="display: flex;"]'); if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && mod.length === 0) inputBuscador.focus(); });
     </script>
 </body>
 </html>
