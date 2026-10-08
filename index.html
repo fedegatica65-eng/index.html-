@@ -254,7 +254,7 @@
 
     <script>
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyh4TFgtSIk7Uo4-IvkdbQwl5cb1FtWEDdP5GEKoZK_CeW9LTbSUasKfGBTEV-mc3MTgQ/exec; // <--- TU URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzQ73B9hE290z2xZ3e00.../exec'; // <--- TU URL DE APPS SCRIPT
         // ========================================================
         
         let catalogoProductos = []; 
@@ -397,7 +397,7 @@
 
         function abrirModalDescuento() {
             if (ticketActual.length === 0) return;
-            document.getElementById('input-valor-descuento').value = ''; // <--- CORREGIDO AQUÍ
+            document.getElementById('input-valor-descuento').value = '';
             document.getElementById('modal-descuento').style.display = 'flex';
             document.getElementById('input-valor-descuento').focus();
         }
@@ -635,7 +635,7 @@
         
         document.addEventListener('click', function(e) {
             let modalesAbiertos = document.querySelectorAll('.overlay[style="display: flex;"]');
-            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && modalesAbiertos.length === 0)अब {
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && modalesAbiertos.length === 0) {
                  inputBuscador.focus();
             }
         });
