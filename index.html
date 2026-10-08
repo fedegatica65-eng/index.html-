@@ -5,42 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Punto de Venta - Kiosco</title>
     <style>
-        /* Diseño pensado para personas mayores: colores claros, letras grandes, alto contraste */
+        /* Diseño pensado para personas mayores */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; flex-shrink: 0; }
         .header h1 { margin: 0; color: #1a73e8; font-size: 1.8rem; }
         #estado { font-weight: bold; color: #fbbc05; background: #fff3e0; padding: 5px 15px; border-radius: 20px; }
         
-        .main-container { display: flex; gap: 20px; flex: 1; min-height: 0; }
+        /* Ajuste para que no se corten los botones */
+        .main-container { display: flex; gap: 20px; flex: 1; min-height: 0; overflow: hidden; }
         
-        /* Panel izquierdo: Buscador y Ticket */
-        .panel-izquierdo { flex: 2; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        /* Buscador enorme */
-        .buscador-container { margin-bottom: 20px; }
+        /* Panel izquierdo */
+        .panel-izquierdo { flex: 2; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; }
+        .buscador-container { margin-bottom: 20px; flex-shrink: 0; }
         #input-buscador { width: 100%; padding: 20px; font-size: 1.5rem; border: 2px solid #1a73e8; border-radius: 8px; box-sizing: border-box; }
         #input-buscador:focus { outline: none; border-color: #0d47a1; box-shadow: 0 0 8px rgba(26,115,232,0.5); }
         
-        /* Lista de productos en el ticket */
         .ticket-container { flex: 1; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; }
-        th { background-color: #f8f9fa; padding: 15px; text-align: left; font-size: 1.2rem; border-bottom: 2px solid #ddd; position: sticky; top: 0; }
-        td { padding: 15px; font-size: 1.3rem; border-bottom: 1px solid #eee; }
-        .col-cant { width: 80px; text-align: center; }
+        th { background-color: #f8f9fa; padding: 15px; text-align: left; font-size: 1.2rem; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 10; }
+        td { padding: 15px; font-size: 1.3rem; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .col-cant { width: 100px; text-align: center; }
         .col-precio { text-align: right; }
-        .btn-quitar { background: #ffebee; color: #d32f2f; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold;}
         
-        /* Panel derecho: Totales y Cobro */
-        .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); justify-content: space-between; }
+        /* Nuevo recuadro para cantidad manual */
+        .input-cant { width: 70px; font-size: 1.4rem; padding: 5px; text-align: center; border: 2px solid #ccc; border-radius: 5px; }
+        .input-cant:focus { border-color: #1a73e8; outline: none; }
+
+        .btn-quitar { background: #ffebee; color: #d32f2f; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 1.2rem; font-weight: bold;}
         
-        .total-box { background: #e8f0fe; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; border: 2px solid #1a73e8; }
+        /* Panel derecho (ajustado para scrolling interno) */
+        .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-y: auto; }
+        .total-box { background: #e8f0fe; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; border: 2px solid #1a73e8; flex-shrink: 0; }
         .total-titulo { font-size: 1.5rem; color: #5f6368; margin-bottom: 10px; }
         .total-monto { font-size: 4rem; font-weight: bold; color: #1a73e8; margin: 0; }
         
-        .metodos-pago { display: flex; flex-direction: column; gap: 15px; }
-        .metodos-pago p { font-size: 1.2rem; margin: 0 0 10px 0; font-weight: bold; text-align: center; color: #5f6368;}
-        .btn-pago { padding: 20px; font-size: 1.5rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; color: white;}
+        .metodos-pago { display: flex; flex-direction: column; gap: 15px; margin-top: auto; }
+        .metodos-pago p { font-size: 1.2rem; margin: 0 0 5px 0; font-weight: bold; text-align: center; color: #5f6368;}
+        .btn-pago { padding: 20px; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; color: white; white-space: normal; }
         .btn-efectivo { background-color: #34a853; }
         .btn-efectivo:hover { background-color: #2d8c45; }
         .btn-mp { background-color: #009ee3; }
@@ -49,14 +51,14 @@
         .btn-fiado:hover { background-color: #c53929; }
         .btn-pago:disabled { background-color: #cccccc; cursor: not-allowed; }
 
-        /* Popups / Modales */
+        /* Modal */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; }
-        .modal { background: white; padding: 30px; border-radius: 10px; width: 80%; max-width: 500px; text-align: center; }
-        .modal h2 { font-size: 2rem; margin-top: 0; }
-        #resultados-busqueda { max-height: 300px; overflow-y: auto; text-align: left; }
+        .modal { background: white; padding: 30px; border-radius: 10px; width: 80%; max-width: 600px; text-align: center; max-height: 80vh; display: flex; flex-direction: column;}
+        .modal h2 { font-size: 1.8rem; margin-top: 0; }
+        #resultados-busqueda { overflow-y: auto; text-align: left; margin-bottom: 20px; }
         .item-busqueda { padding: 15px; border-bottom: 1px solid #eee; font-size: 1.4rem; cursor: pointer; display: flex; justify-content: space-between; }
         .item-busqueda:hover { background-color: #f1f3f4; }
-        .btn-cerrar-modal { margin-top: 20px; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; }
+        .btn-cerrar-modal { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border-radius: 8px; border: 1px solid #ccc; background: #eee; }
     </style>
 </head>
 <body>
@@ -70,7 +72,7 @@
         <!-- Panel Izquierdo -->
         <div class="panel-izquierdo">
             <div class="buscador-container">
-                <input type="text" id="input-buscador" placeholder="Pase el código de barras o escriba un nombre (Ej: Leche) y presione Enter..." autocomplete="off">
+                <input type="text" id="input-buscador" placeholder="Pase el código de barras o busque nombre..." autocomplete="off">
             </div>
             
             <div class="ticket-container">
@@ -81,7 +83,7 @@
                             <th class="col-cant">Cant.</th>
                             <th class="col-precio">Precio</th>
                             <th class="col-precio">Subtotal</th>
-                            <th class="col-cant"></th>
+                            <th class="col-cant">Quitar</th>
                         </tr>
                     </thead>
                     <tbody id="lista-ticket">
@@ -107,36 +109,52 @@
         </div>
     </div>
 
-    <!-- Modal Resultados Búsqueda Manual -->
+    <!-- Modal Resultados -->
     <div class="overlay" id="modal-busqueda">
         <div class="modal">
             <h2>Seleccione un producto</h2>
             <div id="resultados-busqueda"></div>
-            <button class="btn-cerrar-modal" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-cerrar-modal" onclick="cerrarModal()">Cancelar Búsqueda</button>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN ---
-        // ¡TU URL DE GOOGLE APPS SCRIPT ACÁ!
+        // URL de tu Apps Script
         const API_URL = 'https://script.google.com/macros/s/AKfycbxexVf3IwuHslc81f_ZH_jysy6GSnLrmZYOoVz9hECgMbrE-QxiqkE5P5QekxFI-iCDNg/exec';
         
-        let catalogoProductos = []; // Se cargará desde Sheets
+        let catalogoProductos = []; 
         let ticketActual = [];
         let totalTicket = 0;
 
-        // Elementos del DOM
         const inputBuscador = document.getElementById('input-buscador');
         const estadoDiv = document.getElementById('estado');
         const listaTicket = document.getElementById('lista-ticket');
         const spanTotal = document.getElementById('monto-total');
         const botonesPago = document.querySelectorAll('.btn-pago');
 
-        // 1. INICIALIZACIÓN: Cargar productos al abrir
         window.onload = function() {
-            inputBuscador.focus(); // Que siempre arranque titilando el cursor ahí
+            inputBuscador.focus();
             obtenerProductosDeSheets();
         };
+
+        // Función para limpiar precios con comas (Soluciona el NaN)
+        function limpiarPrecio(precio) {
+            if (!precio) return 0;
+            let str = String(precio).trim().replace('$', '');
+            // Formato argentino: 2.390,50
+            if (str.includes(',') && str.indexOf(',') > str.indexOf('.')) {
+                str = str.replace(/\./g, '').replace(',', '.');
+            } 
+            // Formato americano (el que te manda Sheets por defecto): 2,390.50
+            else if (str.includes(',') && str.indexOf('.') > str.indexOf(',')) {
+                str = str.replace(/,/g, '');
+            }
+            // Formato solo coma decimal: 2390,50
+            else if (str.includes(',') && !str.includes('.')) {
+                str = str.replace(',', '.');
+            }
+            return parseFloat(str) || 0;
+        }
 
         function obtenerProductosDeSheets() {
             fetch(`${API_URL}?accion=obtenerProductos`)
@@ -151,30 +169,25 @@
                     estadoDiv.innerText = 'Error sin conexión. Revise internet.';
                     estadoDiv.style.backgroundColor = '#fce8e6';
                     estadoDiv.style.color = '#c5221f';
-                    console.error("Error al cargar:", error);
                 });
         }
 
-        // 2. LECTOR DE BARRAS / BUSCADOR
-        // Escuchamos cuando aprietan "Enter" en el buscador
         inputBuscador.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 buscarProducto(this.value.trim());
-                this.value = ''; // Limpiar buscador
+                this.value = ''; 
             }
         });
 
         function buscarProducto(textoBusqueda) {
             if (textoBusqueda === "") return;
             
-            // Primero intentamos buscar código exacto (lector de barras)
             let productoEncontrado = catalogoProductos.find(p => p.codigo === textoBusqueda);
             
             if (productoEncontrado) {
                 agregarAlTicket(productoEncontrado);
             } else {
-                // Si no hay código exacto, buscamos por nombre (buscador manual)
                 textoBusqueda = textoBusqueda.toLowerCase();
                 let resultados = catalogoProductos.filter(p => 
                     p.nombre.toLowerCase().includes(textoBusqueda) || 
@@ -186,28 +199,38 @@
                 } else if (resultados.length > 1) {
                     mostrarModalBusqueda(resultados);
                 } else {
-                    alert("Producto no encontrado. ¿Está cargado en la planilla?");
+                    alert("Producto no encontrado.");
                 }
             }
         }
 
-        // 3. GESTIÓN DEL TICKET
         function agregarAlTicket(producto) {
-            // Verificar si ya está en el ticket para sumar cantidad
             let itemExistente = ticketActual.find(i => i.codigo === producto.codigo);
-            
+            let precioReal = limpiarPrecio(producto.precioVenta); // Usamos el filtro acá
+
             if (itemExistente) {
                 itemExistente.cantidad++;
-                itemExistente.total = itemExistente.cantidad * itemExistente.precioVenta;
+                itemExistente.total = itemExistente.cantidad * itemExistente.precioUnitario;
             } else {
                 ticketActual.push({
                     codigo: producto.codigo,
                     nombre: producto.nombre,
                     cantidad: 1,
-                    precioUnitario: parseFloat(producto.precioVenta),
-                    total: parseFloat(producto.precioVenta)
+                    precioUnitario: precioReal,
+                    total: precioReal
                 });
             }
+            actualizarVistaTicket();
+        }
+
+        // Función nueva para cambiar cantidad a mano
+        function cambiarCantidad(index, valorInput) {
+            let nuevaCant = parseInt(valorInput);
+            if (isNaN(nuevaCant) || nuevaCant < 1) {
+                nuevaCant = 1; // Mínimo 1 producto
+            }
+            ticketActual[index].cantidad = nuevaCant;
+            ticketActual[index].total = nuevaCant * ticketActual[index].precioUnitario;
             actualizarVistaTicket();
         }
 
@@ -226,24 +249,24 @@
                 let fila = document.createElement('tr');
                 fila.innerHTML = `
                     <td>${item.nombre}</td>
-                    <td class="col-cant"><strong>${item.cantidad}</strong></td>
-                    <td class="col-precio">$${item.precioUnitario.toFixed(2)}</td>
-                    <td class="col-precio"><strong>$${item.total.toFixed(2)}</strong></td>
+                    <td class="col-cant">
+                        <input type="number" class="input-cant" value="${item.cantidad}" min="1" 
+                        onchange="cambiarCantidad(${index}, this.value)" 
+                        onkeyup="if(event.key === 'Enter') { cambiarCantidad(${index}, this.value); document.getElementById('input-buscador').focus(); }">
+                    </td>
+                    <td class="col-precio">$${item.precioUnitario.toLocaleString('es-AR', {minimumFractionDigits: 2})}</td>
+                    <td class="col-precio"><strong>$${item.total.toLocaleString('es-AR', {minimumFractionDigits: 2})}</strong></td>
                     <td class="col-cant"><button class="btn-quitar" onclick="quitarDelTicket(${index})">X</button></td>
                 `;
                 listaTicket.appendChild(fila);
             });
 
-            spanTotal.innerText = totalTicket.toFixed(2);
+            spanTotal.innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
             
-            // Habilitar o deshabilitar botones de cobro
             botonesPago.forEach(btn => btn.disabled = (ticketActual.length === 0));
-            
-            // Volver el foco al lector
             inputBuscador.focus();
         }
 
-        // 4. PROCESAR VENTA
         function procesarVenta(metodoPago) {
             if (ticketActual.length === 0) return;
 
@@ -254,45 +277,34 @@
             let datosVenta = {
                 accion: 'registrarVenta',
                 ventas: {
-                    numeroTicket: Date.now().toString().slice(-6), // Un numero aleatorio corto
+                    numeroTicket: Date.now().toString().slice(-6),
                     metodoPago: metodoPago,
                     detalle: ticketActual
                 }
             };
 
-            // Enviar a Google Sheets
             fetch(API_URL, {
                 method: 'POST',
-                // Evitamos preflight CORS usando 'text/plain' en vez de 'application/json'
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(datosVenta)
             })
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'success') {
-                    // Limpiar ticket
                     ticketActual = [];
                     actualizarVistaTicket();
                     estadoDiv.innerText = `¡Venta Cobrada! (${metodoPago})`;
                     estadoDiv.style.backgroundColor = '#e6f4ea';
                     estadoDiv.style.color = '#137333';
-                    
-                    // Volver estado normal después de 3 seg
-                    setTimeout(() => {
-                        estadoDiv.innerText = 'Listo para cobrar';
-                    }, 3000);
-                } else {
-                    throw new Error("Error del servidor");
-                }
+                    setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
+                } else throw new Error("Error del servidor");
             })
             .catch(error => {
                 alert("Hubo un error al guardar la venta. ¿Hay internet?");
                 estadoDiv.innerText = 'Error al guardar';
-                console.error(error);
             });
         }
 
-        // --- Funciones para el Modal de Búsqueda ---
         function mostrarModalBusqueda(resultados) {
             let contResultados = document.getElementById('resultados-busqueda');
             contResultados.innerHTML = '';
@@ -300,7 +312,8 @@
             resultados.forEach(prod => {
                 let div = document.createElement('div');
                 div.className = 'item-busqueda';
-                div.innerHTML = `<span>${prod.nombre}</span> <strong>$${parseFloat(prod.precioVenta).toFixed(2)}</strong>`;
+                let precioLimpio = limpiarPrecio(prod.precioVenta);
+                div.innerHTML = `<span>${prod.nombre}</span> <strong>$${precioLimpio.toLocaleString('es-AR', {minimumFractionDigits: 2})}</strong>`;
                 div.onclick = () => {
                     agregarAlTicket(prod);
                     cerrarModal();
@@ -316,9 +329,8 @@
             inputBuscador.focus();
         }
         
-        // Mantener el cursor en el buscador si hacen clic afuera para no perder el lector
         document.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'BUTTON' && document.getElementById('modal-busqueda').style.display === 'none') {
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && document.getElementById('modal-busqueda').style.display === 'none') {
                  inputBuscador.focus();
             }
         });
