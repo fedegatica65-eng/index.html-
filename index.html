@@ -37,18 +37,21 @@
         .btn-quitar { background: #fee8e7; color: #d32f2f; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: 0.2s; }
         .btn-quitar:hover { background: #f8d0cb; }
         .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-        .total-box { background: #f8fbff; padding: 20px 10px; border-radius: 12px; text-align: center; margin-bottom: 20px; border: 2px solid #1a73e8; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
-        .total-titulo { font-size: 1.4rem; color: #5f6368; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-        .total-monto-container { display: flex; align-items: baseline; justify-content: center; gap: 8px; width: 100%; }
-        .signo-peso { font-size: 2.5rem; color: #1a73e8; font-weight: bold; }
-        .total-monto { font-size: 4.5rem; font-weight: 800; color: #1a73e8; line-height: 1; margin: 0; letter-spacing: -1px; white-space: nowrap; transition: 0.2s ease-in-out;}
-        .total-monto.monto-largo { font-size: 3.2rem; }
-        .total-monto.monto-muy-largo { font-size: 2.5rem; }
+        
+        /* Ajuste de tamaño para que no estire la pantalla */
+        .total-box { background: #f8fbff; padding: 12px 10px; border-radius: 12px; text-align: center; margin-bottom: 15px; border: 2px solid #1a73e8; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        .total-titulo { font-size: 1.2rem; color: #5f6368; margin-bottom: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .total-monto-container { display: flex; align-items: baseline; justify-content: center; gap: 6px; width: 100%; }
+        .signo-peso { font-size: 2rem; color: #1a73e8; font-weight: bold; }
+        .total-monto { font-size: 3.5rem; font-weight: 800; color: #1a73e8; line-height: 1; margin: 0; letter-spacing: -1px; white-space: nowrap; transition: 0.2s ease-in-out;}
+        .total-monto.monto-largo { font-size: 2.7rem; }
+        .total-monto.monto-muy-largo { font-size: 2.1rem; }
+        
         .seccion-cobro { display: flex; flex-direction: column; flex: 1; justify-content: flex-end; }
-        .metodos-pago { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; }
-        .btn-pago { padding: 18px 10px; font-size: 1.2rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .metodos-pago { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+        .btn-pago { padding: 15px 10px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .btn-pago:active { transform: scale(0.98); }
-        .btn-efectivo { background-color: #34a853; grid-column: span 2; padding: 25px 10px; font-size: 1.5rem; }
+        .btn-efectivo { background-color: #34a853; grid-column: span 2; padding: 20px 10px; font-size: 1.4rem; }
         .btn-efectivo:hover { background-color: #2b8a44; }
         .btn-mp { background-color: #009ee3; }
         .btn-mp:hover { background-color: #0087c1; }
@@ -121,7 +124,7 @@
                     <span class="signo-peso">$</span>
                     <span id="monto-total" class="total-monto">0.00</span>
                 </div>
-                <div id="aviso-descuento" style="font-size: 1rem; color: #d98200; font-weight: bold; margin-top: 5px; display: none;"></div>
+                <div id="aviso-descuento" style="font-size: 0.95rem; color: #d98200; font-weight: bold; margin-top: 3px; display: none;"></div>
             </div>
             
             <div class="seccion-cobro">
@@ -153,7 +156,7 @@
         </div>
     </div>
 
-    <!-- NUEVO: Modal de Descuento -->
+    <!-- Modal de Descuento (Corregido) -->
     <div class="overlay" id="modal-descuento">
         <div class="modal">
             <h2>Aplicar Descuento</h2>
@@ -260,7 +263,7 @@
         let directorioClientes = []; 
         let ticketActual = [];
         let subtotalTicket = 0;
-        let descuentoActual = 0; // Guardamos el descuento en pesos
+        let descuentoActual = 0; 
         let totalTicket = 0;
         let datosCierreActual = {}; 
 
@@ -372,7 +375,6 @@
                 listaTicket.appendChild(fila);
             });
 
-            // Control de descuento máximo
             if (descuentoActual > subtotalTicket) descuentoActual = 0;
             totalTicket = subtotalTicket - descuentoActual;
 
@@ -395,10 +397,10 @@
             inputBuscador.focus();
         }
 
-        // --- FUNCIONES DE DESCUENTO ---
+        // --- FUNCIONES DE DESCUENTO CORREGIDAS ---
         function abrirModalDescuento() {
             if (ticketActual.length === 0) return;
-            document.getElementById('input-valor-descuento.value') = '';
+            document.getElementById('input-valor-descuento').value = '';
             document.getElementById('modal-descuento').style.display = 'flex';
             document.getElementById('input-valor-descuento').focus();
         }
@@ -412,7 +414,7 @@
             cerrarModal('modal-descuento');
             actualizarVistaTicket();
         }
-        // ------------------------------
+        // ------------------------------------------
 
         // --- APERTURA DE CAJA ---
         function abrirModalApertura() {
@@ -537,7 +539,7 @@
             .then(data => {
                 if(data.status === 'success') {
                     ticketActual = [];
-                    descuentoActual = 0; // Reseteamos el descuento para la próxima venta
+                    descuentoActual = 0; 
                     actualizarVistaTicket();
                     estadoDiv.innerText = `¡Cobro exitoso!`;
                     estadoDiv.style.backgroundColor = '#e6f4ea';
