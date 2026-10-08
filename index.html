@@ -26,16 +26,13 @@
         .btn-quitar { background: #fee8e7; color: #d32f2f; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: 0.2s; }
         .btn-quitar:hover { background: #f8d0cb; }
         .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-        
         .total-box { background: #f8fbff; padding: 20px 10px; border-radius: 12px; text-align: center; margin-bottom: 20px; border: 2px solid #1a73e8; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
         .total-titulo { font-size: 1.4rem; color: #5f6368; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
         .total-monto-container { display: flex; align-items: baseline; justify-content: center; gap: 8px; width: 100%; }
         .signo-peso { font-size: 2.5rem; color: #1a73e8; font-weight: bold; }
-        
         .total-monto { font-size: 4.5rem; font-weight: 800; color: #1a73e8; line-height: 1; margin: 0; letter-spacing: -1px; white-space: nowrap; transition: 0.2s ease-in-out;}
         .total-monto.monto-largo { font-size: 3.2rem; }
         .total-monto.monto-muy-largo { font-size: 2.5rem; }
-
         .seccion-cobro { display: flex; flex-direction: column; flex: 1; justify-content: flex-end; }
         .metodos-pago { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; }
         .btn-pago { padding: 18px 10px; font-size: 1.2rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -53,9 +50,12 @@
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal h2 { font-size: 1.8rem; margin-top: 0; color: #202124; }
-        #resultados-busqueda { overflow-y: auto; text-align: left; margin-bottom: 20px; max-height: 300px; }
-        .item-busqueda { padding: 15px; border-bottom: 1px solid #eee; font-size: 1.3rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; border-radius: 6px; }
-        .item-busqueda:hover { background-color: #f8fbff; padding-left: 20px; }
+        
+        /* Listas en los modales */
+        .lista-scroll { overflow-y: auto; text-align: left; margin-bottom: 20px; max-height: 300px; }
+        .item-lista { padding: 15px; border-bottom: 1px solid #eee; font-size: 1.3rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; border-radius: 6px; }
+        .item-lista:hover { background-color: #f8fbff; padding-left: 20px; border-left: 4px solid #1a73e8; }
+        
         .modal-mixto-cuerpo { text-align: left; margin-top: 20px; }
         .grupo-input-mixto { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0; }
         .grupo-input-mixto label { font-size: 1.3rem; font-weight: 600; color: #3c4043; }
@@ -113,28 +113,42 @@
                     <button class="btn-pago btn-efectivo" onclick="prepararCobroUnico('Efectivo')" id="btn-efectivo" disabled>EFECTIVO</button>
                     <button class="btn-pago btn-mp" onclick="prepararCobroUnico('MP')" id="btn-mp" disabled>TRANSF. / MP</button>
                     <button class="btn-pago btn-mixto" onclick="abrirModalMixto()" id="btn-mixto" disabled>PAGO DIVIDIDO</button>
-                    <button class="btn-pago btn-fiado" onclick="prepararCobroUnico('Fiado')" id="btn-fiado" disabled>LIBRETA (FIADO)</button>
+                    <button class="btn-pago btn-fiado" onclick="abrirModalClientes()" id="btn-fiado" disabled>LIBRETA (FIADO)</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modales -->
+    <!-- Modal Busqueda Productos -->
     <div class="overlay" id="modal-busqueda">
         <div class="modal">
             <h2>Seleccione un producto</h2>
-            <div id="resultados-busqueda"></div>
+            <div id="resultados-busqueda" class="lista-scroll"></div>
             <div class="acciones-modal">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModalBusqueda()">Cancelar</button>
+                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-busqueda')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NUEVO: Modal Seleccionar Cliente (Fiado) -->
+    <div class="overlay" id="modal-clientes">
+        <div class="modal">
+            <h2>¿A quién le fiamos?</h2>
+            <p style="color: #5f6368; margin-bottom:15px;">Seleccione un cliente de la libreta:</p>
+            <div id="lista-clientes-div" class="lista-scroll">
+                <!-- Se llena con los clientes del Excel -->
+            </div>
+            <div class="acciones-modal">
+                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-clientes')">Cancelar</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal Pago Mixto -->
     <div class="overlay" id="modal-mixto">
         <div class="modal">
             <h2>Dividir Pago</h2>
             <p style="font-size: 1.2rem; color: #5f6368; margin-top: 5px;">Total a cubrir: <strong>$<span id="total-mixto-display">0.00</span></strong></p>
-            
             <div class="modal-mixto-cuerpo">
                 <div class="grupo-input-mixto">
                     <label>En Efectivo:</label>
@@ -151,9 +165,8 @@
                     </div>
                 </div>
             </div>
-
             <div class="acciones-modal">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModalMixto()">Cancelar</button>
+                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-mixto')">Cancelar</button>
                 <button class="btn-modal btn-confirmar" onclick="procesarVentaMixta()">Confirmar Cobro</button>
             </div>
         </div>
@@ -161,13 +174,11 @@
 
     <script>
         // ========================================================
-        // ¡¡¡ ATENCIÓN !!! PEGAR TU URL NUEVA ABAJO
-        // Reemplazá el link que está entre las comillas simples
+        const API_URL = 'https://script.google.com/macros/s/AKfycbx_kiqZweqndSZ-jWQbgk7x-A0HakBF-fiI9yiAYWuhwazQClBEwPHJkgC8yVgduaTCfQ/exec';
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxFDKX4TPJdomth-yMv97KmjnwHSRlUYTg0wLAMVnF-0trDCmOEzVj7ap31-nylo1iEYQ/exec';
-        
         
         let catalogoProductos = []; 
+        let directorioClientes = []; // Guardamos los clientes acá
         let ticketActual = [];
         let totalTicket = 0;
 
@@ -179,23 +190,21 @@
 
         window.onload = function() {
             inputBuscador.focus();
-            obtenerProductosDeSheets();
+            obtenerDatosDeSheets();
         };
 
         function limpiarPrecio(precio) {
             if (!precio) return 0;
             let str = String(precio).trim().replace('$', '');
-            if (str.includes(',') && str.indexOf(',') > str.indexOf('.')) {
-                str = str.replace(/\./g, '').replace(',', '.');
-            } else if (str.includes(',') && str.indexOf('.') > str.indexOf(',')) {
-                str = str.replace(/,/g, '');
-            } else if (str.includes(',') && !str.includes('.')) {
-                str = str.replace(',', '.');
-            }
+            if (str.includes(',') && str.indexOf(',') > str.indexOf('.')) { str = str.replace(/\./g, '').replace(',', '.'); } 
+            else if (str.includes(',') && str.indexOf('.') > str.indexOf(',')) { str = str.replace(/,/g, ''); } 
+            else if (str.includes(',') && !str.includes('.')) { str = str.replace(',', '.'); }
             return parseFloat(str) || 0;
         }
 
-        function obtenerProductosDeSheets() {
+        // Ahora descargamos Productos y Clientes al mismo tiempo al abrir la caja
+        function obtenerDatosDeSheets() {
+            // Buscar productos
             fetch(`${API_URL}?accion=obtenerProductos`)
                 .then(response => response.json())
                 .then(data => {
@@ -205,9 +214,16 @@
                     estadoDiv.style.color = '#137333';
                 })
                 .catch(error => {
-                    estadoDiv.innerText = 'Revise la URL o su conexión';
+                    estadoDiv.innerText = 'Error de conexión';
                     estadoDiv.style.backgroundColor = '#fce8e6';
                     estadoDiv.style.color = '#c5221f';
+                });
+                
+            // Buscar Clientes
+            fetch(`${API_URL}?accion=obtenerClientes`)
+                .then(response => response.json())
+                .then(data => {
+                    directorioClientes = data;
                 });
         }
 
@@ -228,17 +244,12 @@
             } else {
                 textoBusqueda = textoBusqueda.toLowerCase();
                 let resultados = catalogoProductos.filter(p => 
-                    p.nombre.toLowerCase().includes(textoBusqueda) || 
-                    p.codigo.includes(textoBusqueda)
+                    p.nombre.toLowerCase().includes(textoBusqueda) || p.codigo.includes(textoBusqueda)
                 );
                 
-                if (resultados.length === 1) {
-                    agregarAlTicket(resultados[0]);
-                } else if (resultados.length > 1) {
-                    mostrarModalBusqueda(resultados);
-                } else {
-                    alert("No se encontró el producto.");
-                }
+                if (resultados.length === 1) agregarAlTicket(resultados[0]);
+                else if (resultados.length > 1) mostrarModalBusqueda(resultados);
+                else alert("No se encontró el producto.");
             }
         }
 
@@ -250,13 +261,7 @@
                 itemExistente.cantidad++;
                 itemExistente.total = itemExistente.cantidad * itemExistente.precioUnitario;
             } else {
-                ticketActual.push({
-                    codigo: producto.codigo,
-                    nombre: producto.nombre,
-                    cantidad: 1,
-                    precioUnitario: precioReal,
-                    total: precioReal
-                });
+                ticketActual.push({ codigo: producto.codigo, nombre: producto.nombre, cantidad: 1, precioUnitario: precioReal, total: precioReal });
             }
             actualizarVistaTicket();
         }
@@ -297,29 +302,56 @@
 
             spanTotal.innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
             
-            // Lógica para achicar la letra
             let digitos = totalTicket.toFixed(2).toString().length;
-            if(digitos > 9) {
-                 spanTotal.className = 'total-monto monto-muy-largo';
-            } else if (digitos > 7) {
-                 spanTotal.className = 'total-monto monto-largo';
-            } else {
-                 spanTotal.className = 'total-monto';
-            }
+            if(digitos > 9) spanTotal.className = 'total-monto monto-muy-largo';
+            else if (digitos > 7) spanTotal.className = 'total-monto monto-largo';
+            else spanTotal.className = 'total-monto';
 
             botonesPago.forEach(btn => btn.disabled = (ticketActual.length === 0));
             inputBuscador.focus();
         }
 
+        // --- SISTEMA DE COBROS Y FIADO ---
         function prepararCobroUnico(tipo) {
             if (ticketActual.length === 0) return;
-            
             let pagos = { efectivo: 0, mp: 0, fiado: 0 };
             if (tipo === 'Efectivo') pagos.efectivo = totalTicket;
             else if (tipo === 'MP') pagos.mp = totalTicket;
-            else if (tipo === 'Fiado') pagos.fiado = totalTicket;
+            
+            enviarVentaAlMotor(pagos, ""); // Sin cliente
+        }
 
-            enviarVentaAlMotor(pagos, tipo);
+        // Abre la ventana para elegir al cliente
+        function abrirModalClientes() {
+            if (ticketActual.length === 0) return;
+            if (directorioClientes.length === 0) {
+                alert("No hay clientes cargados en la pestaña 'Cuentas Corrientes'. Agregue uno en el Excel primero.");
+                return;
+            }
+
+            let divClientes = document.getElementById('lista-clientes-div');
+            divClientes.innerHTML = '';
+            
+            directorioClientes.forEach(cli => {
+                let div = document.createElement('div');
+                div.className = 'item-lista';
+                // Mostramos el nombre y la deuda actual que tiene en chiquito
+                let saldoFormat = parseFloat(cli.saldo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                div.innerHTML = `<span><strong>${cli.nombre}</strong></span> <span style="font-size:1rem; color:#ea4335;">(Debe $${saldoFormat})</span>`;
+                
+                div.onclick = () => {
+                    cobrarFiadoACliente(cli.nombre);
+                    cerrarModal('modal-clientes');
+                };
+                divClientes.appendChild(div);
+            });
+            document.getElementById('modal-clientes').style.display = 'flex';
+        }
+
+        // Procesa el fiado y envía el nombre
+        function cobrarFiadoACliente(nombreCliente) {
+            let pagos = { efectivo: 0, mp: 0, fiado: totalTicket };
+            enviarVentaAlMotor(pagos, nombreCliente);
         }
 
         function procesarVentaMixta() {
@@ -331,13 +363,13 @@
                 alert("Atención: Los montos ingresados no suman el total del ticket.");
                 return;
             }
-
             let pagos = { efectivo: valEfectivo, mp: valMp, fiado: 0 };
-            cerrarModalMixto();
-            enviarVentaAlMotor(pagos, 'Pago Mixto');
+            cerrarModal('modal-mixto');
+            enviarVentaAlMotor(pagos, ""); // Sin cliente
         }
 
-        function enviarVentaAlMotor(pagos, nombreMetodo) {
+        // Enviar al motor de Sheets
+        function enviarVentaAlMotor(pagos, nombreCliente) {
             estadoDiv.innerText = 'Registrando...';
             estadoDiv.style.backgroundColor = '#fff3e0';
             estadoDiv.style.color = '#fbbc05';
@@ -347,6 +379,7 @@
                 ventas: {
                     numeroTicket: Date.now().toString().slice(-6),
                     pagos: pagos,
+                    cliente: nombreCliente, // ACA ENVIAMOS EL NOMBRE DEL CLIENTE
                     detalle: ticketActual
                 }
             };
@@ -364,6 +397,9 @@
                     estadoDiv.innerText = `¡Cobro exitoso!`;
                     estadoDiv.style.backgroundColor = '#e6f4ea';
                     estadoDiv.style.color = '#137333';
+                    // Si hubo fiado, recargamos la lista de clientes para actualizar la deuda
+                    if (nombreCliente !== "") obtenerDatosDeSheets();
+                    
                     setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
                 } else throw new Error("Error del servidor");
             })
@@ -373,6 +409,7 @@
             });
         }
 
+        // --- Modales Utilitarios ---
         function abrirModalMixto() {
             if (ticketActual.length === 0) return;
             document.getElementById('total-mixto-display').innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
@@ -397,38 +434,34 @@
             }
         }
 
-        function cerrarModalMixto() {
-            document.getElementById('modal-mixto').style.display = 'none';
-            inputBuscador.focus();
-        }
-
         function mostrarModalBusqueda(resultados) {
             let contResultados = document.getElementById('resultados-busqueda');
             contResultados.innerHTML = '';
             
             resultados.forEach(prod => {
                 let div = document.createElement('div');
-                div.className = 'item-busqueda';
+                div.className = 'item-lista';
                 let precioLimpio = limpiarPrecio(prod.precioVenta);
                 div.innerHTML = `<span><strong>${prod.nombre}</strong></span> <span style="color:#1a73e8; font-weight:bold;">$${precioLimpio.toLocaleString('es-AR', {minimumFractionDigits: 2})}</span>`;
                 div.onclick = () => {
                     agregarAlTicket(prod);
-                    cerrarModalBusqueda();
+                    cerrarModal('modal-busqueda');
                 };
                 contResultados.appendChild(div);
             });
             document.getElementById('modal-busqueda').style.display = 'flex';
         }
 
-        function cerrarModalBusqueda() {
-            document.getElementById('modal-busqueda').style.display = 'none';
+        function cerrarModal(idModal) {
+            document.getElementById(idModal).style.display = 'none';
             inputBuscador.focus();
         }
         
         document.addEventListener('click', function(e) {
-            let isModalOpen = document.getElementById('modal-busqueda').style.display === 'flex' || 
-                              document.getElementById('modal-mixto').style.display === 'flex';
-            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && !isModalOpen) {
+            let mBusqueda = document.getElementById('modal-busqueda').style.display === 'flex';
+            let mMixto = document.getElementById('modal-mixto').style.display === 'flex';
+            let mCli = document.getElementById('modal-clientes').style.display === 'flex';
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && !mBusqueda && !mMixto && !mCli) {
                  inputBuscador.focus();
             }
         });
