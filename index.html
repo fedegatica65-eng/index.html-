@@ -6,13 +6,18 @@
     <title>Punto de Venta - Kiosco</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 15px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
-        .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; flex-shrink: 0; }
-        .header-izquierda { display: flex; align-items: center; gap: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; flex-shrink: 0; flex-wrap: wrap; gap: 10px;}
+        .header-izquierda { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .header h1 { margin: 0; color: #1a73e8; font-size: 1.8rem; font-weight: 700; }
         
-        /* Boton para pagar fiado arriba */
-        .btn-header { background: #e8f0fe; color: #1a73e8; border: 2px solid #1a73e8; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+        .btn-header { background: #e8f0fe; color: #1a73e8; border: 2px solid #1a73e8; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
         .btn-header:hover { background: #d2e3fc; }
+        
+        .btn-apertura { background: #e6f4ea; color: #137333; border: 2px solid #137333; }
+        .btn-apertura:hover { background: #ceead6; }
+
+        .btn-cierre { background: #fff3e0; color: #f29900; border: 2px solid #f29900; }
+        .btn-cierre:hover { background: #fce8c5; }
 
         #estado { font-weight: bold; color: #fbbc05; background: #fff3e0; padding: 8px 18px; border-radius: 20px; font-size: 1.1rem; }
         .main-container { display: flex; gap: 15px; flex: 1; min-height: 0; overflow: hidden; }
@@ -67,6 +72,7 @@
         .btn-modal { flex: 1; padding: 15px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; }
         .btn-confirmar { background-color: #1a73e8; }
         .btn-cancelar { background-color: #9e9e9e; }
+        .texto-arqueo { font-size: 1.3rem; color: #3c4043; border-bottom: 1px dashed #ccc; padding-bottom: 8px; margin-bottom: 12px;}
     </style>
 </head>
 <body>
@@ -74,12 +80,15 @@
     <div class="header">
         <div class="header-izquierda">
             <h1>Mi Kiosco - Punto de Venta</h1>
-            <button class="btn-header" onclick="abrirModalPagarDeuda()">💰 INGRESAR PAGO DE LIBRETA</button>
+            <button class="btn-header btn-apertura" onclick="abrirModalApertura()">🟢 APERTURA</button>
+            <button class="btn-header" onclick="abrirModalPagarDeuda()">💰 PAGO LIBRETA</button>
+            <button class="btn-header btn-cierre" onclick="abrirModalCierre()">📊 CIERRE</button>
         </div>
         <div id="estado">Cargando sistema...</div>
     </div>
 
     <div class="main-container">
+        <!-- Panel Izquierdo -->
         <div class="panel-izquierdo">
             <div class="buscador-container">
                 <input type="text" id="input-buscador" placeholder="Pase el código de barras o busque nombre del producto..." autocomplete="off">
@@ -102,6 +111,7 @@
             </div>
         </div>
 
+        <!-- Panel Derecho -->
         <div class="panel-derecho">
             <div class="total-box">
                 <div class="total-titulo">TOTAL A COBRAR</div>
@@ -122,23 +132,35 @@
         </div>
     </div>
 
+    <!-- Modales -->
     <div class="overlay" id="modal-busqueda">
         <div class="modal">
             <h2>Seleccione un producto</h2>
             <div id="resultados-busqueda" class="lista-scroll"></div>
-            <div class="acciones-modal">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-busqueda')">Cancelar</button>
-            </div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-busqueda')">Cancelar</button></div>
         </div>
     </div>
     
     <div class="overlay" id="modal-clientes">
         <div class="modal">
             <h2>¿A quién le fiamos?</h2>
-            <p style="color: #5f6368; margin-bottom:15px;">Seleccione un cliente de la libreta:</p>
             <div id="lista-clientes-div" class="lista-scroll"></div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-clientes')">Cancelar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL APERTURA DE CAJA -->
+    <div class="overlay" id="modal-apertura">
+        <div class="modal">
+            <h2 style="color: #137333;">Apertura de Caja</h2>
+            <p style="color: #5f6368; margin-bottom: 20px;">Ingrese el fondo de cambio inicial en efectivo:</p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 20px;">
+                <span style="font-size: 2rem; color:#5f6368">$</span>
+                <input type="number" id="input-fondo-inicial" class="input-dinero" style="width: 200px; text-align: center;" min="0" placeholder="0.00">
+            </div>
             <div class="acciones-modal">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-clientes')">Cancelar</button>
+                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-apertura')">Cancelar</button>
+                <button class="btn-modal" style="background-color: #137333;" onclick="guardarApertura()">Guardar Apertura</button>
             </div>
         </div>
     </div>
@@ -146,65 +168,71 @@
     <div class="overlay" id="modal-pagar-deuda">
         <div class="modal">
             <h2>Ingresar Pago de Libreta</h2>
-            
             <div class="grupo-input-mixto" style="flex-direction: column; align-items: stretch; gap: 5px;">
-                <label style="text-align: left;">¿Qué cliente está pagando?</label>
-                <select id="select-cliente-pago" style="padding: 12px; font-size: 1.2rem; border-radius: 6px; border: 1px solid #ccc;">
-                    </select>
+                <label style="text-align: left;">Cliente:</label>
+                <select id="select-cliente-pago" style="padding: 12px; font-size: 1.2rem; border-radius: 6px; border: 1px solid #ccc;"></select>
             </div>
-
             <div class="grupo-input-mixto" style="flex-direction: column; align-items: stretch; gap: 5px;">
-                <label style="text-align: left;">¿Cuánta plata entrega?</label>
+                <label style="text-align: left;">Monto entregado:</label>
                 <div style="display: flex; align-items: center; gap: 5px;">
                     <span style="font-size: 1.5rem; color:#5f6368">$</span>
-                    <input type="number" id="input-monto-deuda" class="input-dinero" style="width: 100%; text-align: left;" min="0" placeholder="Ej: 5000">
+                    <input type="number" id="input-monto-deuda" class="input-dinero" style="width: 100%; text-align: left;" min="0">
                 </div>
             </div>
-            
-            <p style="text-align: left; margin-bottom: 5px; font-weight: bold; color: #5f6368;">¿Cómo pagó?</p>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-modal" style="background-color: #34a853; flex: 1;" onclick="enviarPagoDeuda('Efectivo')">EN EFECTIVO</button>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-modal" style="background-color: #34a853; flex: 1;" onclick="enviarPagoDeuda('Efectivo')">EFECTIVO</button>
                 <button class="btn-modal" style="background-color: #009ee3; flex: 1;" onclick="enviarPagoDeuda('MP')">TRANSF. / MP</button>
             </div>
-            
-            <div class="acciones-modal" style="margin-top: 15px;">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-pagar-deuda')">Cancelar</button>
-            </div>
+            <div class="acciones-modal" style="margin-top: 15px;"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-pagar-deuda')">Cancelar</button></div>
         </div>
     </div>
 
     <div class="overlay" id="modal-mixto">
         <div class="modal">
             <h2>Dividir Pago</h2>
-            <p style="font-size: 1.2rem; color: #5f6368; margin-top: 5px;">Total a cubrir: <strong>$<span id="total-mixto-display">0.00</span></strong></p>
+            <p style="font-size: 1.2rem; color: #5f6368; margin-top: 5px;">Total: <strong>$<span id="total-mixto-display">0.00</span></strong></p>
             <div class="modal-mixto-cuerpo">
                 <div class="grupo-input-mixto">
-                    <label>En Efectivo:</label>
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="font-size: 1.5rem; color:#5f6368">$</span>
-                        <input type="number" id="input-mixto-efectivo" class="input-dinero" oninput="calcularMixto('efectivo')" min="0">
-                    </div>
+                    <label>Efectivo:</label>
+                    <div style="display: flex; align-items: center; gap: 5px;"><span style="font-size: 1.5rem; color:#5f6368">$</span><input type="number" id="input-mixto-efectivo" class="input-dinero" oninput="calcularMixto('efectivo')" min="0"></div>
                 </div>
                 <div class="grupo-input-mixto">
-                    <label>Transferencia / MP:</label>
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <span style="font-size: 1.5rem; color:#5f6368">$</span>
-                        <input type="number" id="input-mixto-mp" class="input-dinero" oninput="calcularMixto('mp')" min="0">
-                    </div>
+                    <label>Transf / MP:</label>
+                    <div style="display: flex; align-items: center; gap: 5px;"><span style="font-size: 1.5rem; color:#5f6368">$</span><input type="number" id="input-mixto-mp" class="input-dinero" oninput="calcularMixto('mp')" min="0"></div>
                 </div>
             </div>
-            <div class="acciones-modal">
-                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-mixto')">Cancelar</button>
-                <button class="btn-modal btn-confirmar" onclick="procesarVentaMixta()">Confirmar Cobro</button>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-mixto')">Cancelar</button><button class="btn-modal btn-confirmar" onclick="procesarVentaMixta()">Confirmar</button></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="modal-cierre">
+        <div class="modal">
+            <h2 style="color: #f29900; font-size: 2rem; margin-bottom: 5px;">Arqueo de Caja</h2>
+            <p style="color: #5f6368; margin-top: 0; margin-bottom: 20px;">Resumen del día actual</p>
+            
+            <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                <div class="texto-arqueo">🟢 Fondo Inicial (Apertura): <span id="cierre-fondo" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div class="texto-arqueo">💵 Ventas en Efectivo: <span id="cierre-ventas-efe" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div style="font-size: 1.4rem; font-weight: bold; color: #34a853; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid #ccc;">
+                    💵 TOTAL EFECTIVO EN CAJA: <span id="cierre-efe-total" style="float: right;">$0.00</span>
+                </div>
+                <div class="texto-arqueo">📱 Transf. / MP: <span id="cierre-mp" style="color: #009ee3; float: right; font-weight:bold;">$0.00</span></div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #1a73e8; margin-top: 10px;">
+                    💰 TOTAL GENERAL: <span id="cierre-total" style="float: right;">$0.00</span>
+                </div>
+                <div style="font-size: 1rem; color: #ea4335; padding-top: 10px; border-top: 1px dashed #ccc; margin-top: 10px;">
+                    📕 Fiado entregado hoy: <span id="cierre-fiado" style="float: right; font-weight:bold;">$0.00</span>
+                </div>
             </div>
+
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" style="background-color: #5f6368;" onclick="cerrarModal('modal-cierre')">Cerrar</button></div>
         </div>
     </div>
 
     <script>
         // ========================================================
-        // ¡¡¡ ATENCIÓN !!! PEGAR TU URL NUEVA ABAJO
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyKbt8IKX0eTh3piokQsAznRf2FZUwKNuFsPtnrxdQ-w_UB0laBXzNFy45t2MAHqcuvQA/exec';
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxCwztP0RlZPdxzpCapXIoNdtBanJLORdO1fFsYx0qMlTnzpdB3Zty_Usmx4CEvJNd0XA/exec';
         
         let catalogoProductos = []; 
         let directorioClientes = []; 
@@ -325,6 +353,38 @@
             inputBuscador.focus();
         }
 
+        // --- APERTURA DE CAJA ---
+        function abrirModalApertura() {
+            document.getElementById('input-fondo-inicial').value = '';
+            document.getElementById('modal-apertura').style.display = 'flex';
+            document.getElementById('input-fondo-inicial').focus();
+        }
+
+        function guardarApertura() {
+            let monto = parseFloat(document.getElementById('input-fondo-inicial').value);
+            if (isNaN(monto) || monto < 0) return alert("Ingrese un monto válido.");
+
+            estadoDiv.innerText = 'Guardando apertura...';
+            estadoDiv.style.backgroundColor = '#fff3e0';
+            estadoDiv.style.color = '#fbbc05';
+
+            let datos = { accion: 'registrarApertura', monto: monto };
+
+            fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(datos) })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    cerrarModal('modal-apertura');
+                    estadoDiv.innerText = `¡Apertura registrada!`;
+                    estadoDiv.style.backgroundColor = '#e6f4ea';
+                    estadoDiv.style.color = '#137333';
+                    setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
+                } else throw new Error();
+            })
+            .catch(() => { alert("Error al guardar."); estadoDiv.innerText = 'Error'; });
+        }
+        // -----------------------
+
         function prepararCobroUnico(tipo) {
             if (ticketActual.length === 0) return;
             let pagos = { efectivo: 0, mp: 0, fiado: 0 };
@@ -356,18 +416,14 @@
             enviarVentaAlMotor(pagos, nombreCliente);
         }
 
-        // --- NUEVA LÓGICA: INGRESAR PAGO DE DEUDA ---
         function abrirModalPagarDeuda() {
             if (directorioClientes.length === 0) return alert("No hay clientes cargados.");
-            
             let select = document.getElementById('select-cliente-pago');
-            select.innerHTML = '<option value="" disabled selected>-- Elija un cliente --</option>';
-            
+            select.innerHTML = '<option value="" disabled selected>-- Elija cliente --</option>';
             directorioClientes.forEach(cli => {
                 let saldoFormat = parseFloat(cli.saldo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 select.innerHTML += `<option value="${cli.nombre}">${cli.nombre} (Debe $${saldoFormat})</option>`;
             });
-            
             document.getElementById('input-monto-deuda').value = '';
             document.getElementById('modal-pagar-deuda').style.display = 'flex';
         }
@@ -375,29 +431,16 @@
         function enviarPagoDeuda(metodo) {
             let cliente = document.getElementById('select-cliente-pago').value;
             let monto = parseFloat(document.getElementById('input-monto-deuda').value);
-            
-            if (!cliente) return alert("Por favor seleccione un cliente.");
-            if (!monto || monto <= 0) return alert("Ingrese un monto válido mayor a 0.");
+            if (!cliente) return alert("Seleccione un cliente.");
+            if (!monto || monto <= 0) return alert("Ingrese un monto válido.");
 
             estadoDiv.innerText = 'Registrando pago...';
             estadoDiv.style.backgroundColor = '#fff3e0';
             estadoDiv.style.color = '#fbbc05';
 
-            let datosPago = {
-                accion: 'registrarPagoDeuda',
-                pago: {
-                    numeroTicket: Date.now().toString().slice(-6),
-                    cliente: cliente,
-                    monto: monto,
-                    metodo: metodo
-                }
-            };
+            let datosPago = { accion: 'registrarPagoDeuda', pago: { numeroTicket: Date.now().toString().slice(-6), cliente: cliente, monto: monto, metodo: metodo } };
 
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(datosPago)
-            })
+            fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(datosPago) })
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'success') {
@@ -405,20 +448,17 @@
                     estadoDiv.innerText = `¡Ingreso registrado!`;
                     estadoDiv.style.backgroundColor = '#e6f4ea';
                     estadoDiv.style.color = '#137333';
-                    obtenerDatosDeSheets(); // Refresca los saldos automáticamente
+                    obtenerDatosDeSheets();
                     setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
-                } else throw new Error("Error");
+                } else throw new Error();
             })
-            .catch(error => { alert("Hubo un error al guardar."); estadoDiv.innerText = 'Error'; });
+            .catch(() => { alert("Error al guardar."); estadoDiv.innerText = 'Error'; });
         }
-        // ---------------------------------------------
 
         function procesarVentaMixta() {
             let valEfectivo = parseFloat(document.getElementById('input-mixto-efectivo').value) || 0;
             let valMp = parseFloat(document.getElementById('input-mixto-mp').value) || 0;
-            let suma = valEfectivo + valMp;
-
-            if (Math.abs(suma - totalTicket) > 0.5) return alert("Los montos no suman el total.");
+            if (Math.abs((valEfectivo + valMp) - totalTicket) > 0.5) return alert("Los montos no suman el total.");
             
             let pagos = { efectivo: valEfectivo, mp: valMp, fiado: 0 };
             cerrarModal('modal-mixto');
@@ -430,21 +470,9 @@
             estadoDiv.style.backgroundColor = '#fff3e0';
             estadoDiv.style.color = '#fbbc05';
 
-            let datosVenta = {
-                accion: 'registrarVenta',
-                ventas: {
-                    numeroTicket: Date.now().toString().slice(-6),
-                    pagos: pagos,
-                    cliente: nombreCliente,
-                    detalle: ticketActual
-                }
-            };
+            let datosVenta = { accion: 'registrarVenta', ventas: { numeroTicket: Date.now().toString().slice(-6), pagos: pagos, cliente: nombreCliente, detalle: ticketActual } };
 
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(datosVenta)
-            })
+            fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(datosVenta) })
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'success') {
@@ -455,10 +483,39 @@
                     estadoDiv.style.color = '#137333';
                     if (nombreCliente !== "") obtenerDatosDeSheets();
                     setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
-                } else throw new Error("Error");
+                } else throw new Error();
             })
-            .catch(error => { alert("Hubo un error al guardar la venta."); estadoDiv.innerText = 'Error'; });
+            .catch(() => { alert("Error al guardar."); estadoDiv.innerText = 'Error'; });
         }
+
+        // --- CIERRE DE CAJA ACTUALIZADO ---
+        function abrirModalCierre() {
+            estadoDiv.innerText = 'Calculando caja...';
+            estadoDiv.style.backgroundColor = '#fff3e0';
+            estadoDiv.style.color = '#fbbc05';
+
+            fetch(`${API_URL}?accion=obtenerCierreCaja`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cierre-fondo').innerText = '$' + parseFloat(data.fondoInicial).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                    document.getElementById('cierre-ventas-efe').innerText = '$' + parseFloat(data.ventasEfectivo).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                    document.getElementById('cierre-efe-total').innerText = '$' + parseFloat(data.efectivoEnCaja).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                    document.getElementById('cierre-mp').innerText = '$' + parseFloat(data.mp).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                    document.getElementById('cierre-total').innerText = '$' + parseFloat(data.totalReal).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                    document.getElementById('cierre-fiado').innerText = '$' + parseFloat(data.fiado).toLocaleString('es-AR', {minimumFractionDigits: 2});
+
+                    estadoDiv.innerText = `Listo`;
+                    estadoDiv.style.backgroundColor = '#e6f4ea';
+                    estadoDiv.style.color = '#137333';
+                    
+                    document.getElementById('modal-cierre').style.display = 'flex';
+                })
+                .catch(() => {
+                    alert("Error al calcular el cierre.");
+                    estadoDiv.innerText = 'Error';
+                });
+        }
+        // ------------------------------------
 
         function abrirModalMixto() {
             if (ticketActual.length === 0) return;
@@ -487,7 +544,6 @@
         function mostrarModalBusqueda(resultados) {
             let contResultados = document.getElementById('resultados-busqueda');
             contResultados.innerHTML = '';
-            
             resultados.forEach(prod => {
                 let div = document.createElement('div');
                 div.className = 'item-lista';
