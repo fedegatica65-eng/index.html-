@@ -38,7 +38,6 @@
         .btn-quitar:hover { background: #f8d0cb; }
         .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
         
-        /* Ajuste de tamaño para que no estire la pantalla */
         .total-box { background: #f8fbff; padding: 12px 10px; border-radius: 12px; text-align: center; margin-bottom: 15px; border: 2px solid #1a73e8; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
         .total-titulo { font-size: 1.2rem; color: #5f6368; margin-bottom: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
         .total-monto-container { display: flex; align-items: baseline; justify-content: center; gap: 6px; width: 100%; }
@@ -156,7 +155,6 @@
         </div>
     </div>
 
-    <!-- Modal de Descuento (Corregido) -->
     <div class="overlay" id="modal-descuento">
         <div class="modal">
             <h2>Aplicar Descuento</h2>
@@ -256,7 +254,7 @@
 
     <script>
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyh4TFgtSIk7Uo4-IvkdbQwl5cb1FtWEDdP5GEKoZK_CeW9LTbSUasKfGBTEV-mc3MTgQ/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyh4TFgtSIk7Uo4-IvkdbQwl5cb1FtWEDdP5GEKoZK_CeW9LTbSUasKfGBTEV-mc3MTgQ/exec'; // <--- TU URL DE APPS SCRIPT
         // ========================================================
         
         let catalogoProductos = []; 
@@ -397,10 +395,9 @@
             inputBuscador.focus();
         }
 
-        // --- FUNCIONES DE DESCUENTO CORREGIDAS ---
         function abrirModalDescuento() {
             if (ticketActual.length === 0) return;
-            document.getElementById('input-valor-descuento').value = '';
+            document.getElementById('input-valor-descuento').value = ''; // <--- CORREGIDO AQUÍ
             document.getElementById('modal-descuento').style.display = 'flex';
             document.getElementById('input-valor-descuento').focus();
         }
@@ -414,7 +411,6 @@
             cerrarModal('modal-descuento');
             actualizarVistaTicket();
         }
-        // ------------------------------------------
 
         // --- APERTURA DE CAJA ---
         function abrirModalApertura() {
@@ -532,7 +528,16 @@
             estadoDiv.style.backgroundColor = '#fff3e0';
             estadoDiv.style.color = '#fbbc05';
 
-            let datosVenta = { accion: 'registrarVenta', ventas: { numeroTicket: Date.now().toString().slice(-6), pagos: pagos, cliente: nombreCliente, detalle: ticketActual } };
+            let datosVenta = { 
+                accion: 'registrarVenta', 
+                ventas: { 
+                    numeroTicket: Date.now().toString().slice(-6), 
+                    pagos: pagos, 
+                    cliente: nombreCliente, 
+                    descuento: descuentoActual, 
+                    detalle: ticketActual 
+                } 
+            };
 
             fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(datosVenta) })
             .then(response => response.json())
@@ -595,45 +600,4 @@
                     setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
                 } else throw new Error();
             })
-            .catch(() => { alert("Error al guardar el cierre."); estadoDiv.innerText = 'Error'; });
-        }
-
-        function mostrarModalBusqueda(resultados) {
-            let contResultados = document.getElementById('resultados-busqueda');
-            contResultados.innerHTML = '';
-            
-            resultados.forEach(prod => {
-                let div = document.createElement('div');
-                div.className = 'item-lista';
-                let precioLimpio = limpiarPrecio(prod.precioVenta);
-                
-                let avisoStock = "";
-                if (prod.stockActual <= prod.stockMinimo) {
-                    avisoStock = ` <span style="font-size: 0.9rem; background: #fce8e6; color: #c5221f; padding: 4px 8px; border-radius: 4px; font-weight: bold;">⚠️ Stock bajo (${prod.stockActual})</span>`;
-                }
-
-                div.innerHTML = `<span><strong>${prod.nombre}</strong>${avisoStock}</span> <span style="color:#1a73e8; font-weight:bold;">$${precioLimpio.toLocaleString('es-AR', {minimumFractionDigits: 2})}</span>`;
-                
-                div.onclick = () => {
-                    agregarAlTicket(prod);
-                    cerrarModal('modal-busqueda');
-                };
-                contResultados.appendChild(div);
-            });
-            document.getElementById('modal-busqueda').style.display = 'flex';
-        }
-
-        function cerrarModal(idModal) {
-            document.getElementById(idModal).style.display = 'none';
-            inputBuscador.focus();
-        }
-        
-        document.addEventListener('click', function(e) {
-            let modalesAbiertos = document.querySelectorAll('.overlay[style="display: flex;"]');
-            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && modalesAbiertos.length === 0) {
-                 inputBuscador.focus();
-            }
-        });
-    </script>
-</body>
-</html>
+            .catch(() => { alert
