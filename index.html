@@ -7,7 +7,13 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 15px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
         .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; flex-shrink: 0; }
+        .header-izquierda { display: flex; align-items: center; gap: 20px; }
         .header h1 { margin: 0; color: #1a73e8; font-size: 1.8rem; font-weight: 700; }
+        
+        /* Boton para pagar fiado arriba */
+        .btn-header { background: #e8f0fe; color: #1a73e8; border: 2px solid #1a73e8; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+        .btn-header:hover { background: #d2e3fc; }
+
         #estado { font-weight: bold; color: #fbbc05; background: #fff3e0; padding: 8px 18px; border-radius: 20px; font-size: 1.1rem; }
         .main-container { display: flex; gap: 15px; flex: 1; min-height: 0; overflow: hidden; }
         .panel-izquierdo { flex: 2.2; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
@@ -49,14 +55,10 @@
         
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal h2 { font-size: 1.8rem; margin-top: 0; color: #202124; }
-        
-        /* Listas en los modales */
+        .modal h2 { font-size: 1.8rem; margin-top: 0; color: #202124; margin-bottom: 15px;}
         .lista-scroll { overflow-y: auto; text-align: left; margin-bottom: 20px; max-height: 300px; }
         .item-lista { padding: 15px; border-bottom: 1px solid #eee; font-size: 1.3rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; border-radius: 6px; }
         .item-lista:hover { background-color: #f8fbff; padding-left: 20px; border-left: 4px solid #1a73e8; }
-        
-        .modal-mixto-cuerpo { text-align: left; margin-top: 20px; }
         .grupo-input-mixto { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e0e0e0; }
         .grupo-input-mixto label { font-size: 1.3rem; font-weight: 600; color: #3c4043; }
         .input-dinero { font-size: 1.5rem; width: 140px; padding: 8px; text-align: right; border: 2px solid #ccc; border-radius: 6px; font-weight: bold; color: #1a73e8; }
@@ -70,12 +72,14 @@
 <body>
 
     <div class="header">
-        <h1>Mi Kiosco - Punto de Venta</h1>
+        <div class="header-izquierda">
+            <h1>Mi Kiosco - Punto de Venta</h1>
+            <button class="btn-header" onclick="abrirModalPagarDeuda()">💰 INGRESAR PAGO DE LIBRETA</button>
+        </div>
         <div id="estado">Cargando sistema...</div>
     </div>
 
     <div class="main-container">
-        <!-- Panel Izquierdo -->
         <div class="panel-izquierdo">
             <div class="buscador-container">
                 <input type="text" id="input-buscador" placeholder="Pase el código de barras o busque nombre del producto..." autocomplete="off">
@@ -98,7 +102,6 @@
             </div>
         </div>
 
-        <!-- Panel Derecho -->
         <div class="panel-derecho">
             <div class="total-box">
                 <div class="total-titulo">TOTAL A COBRAR</div>
@@ -119,7 +122,6 @@
         </div>
     </div>
 
-    <!-- Modal Busqueda Productos -->
     <div class="overlay" id="modal-busqueda">
         <div class="modal">
             <h2>Seleccione un producto</h2>
@@ -130,21 +132,47 @@
         </div>
     </div>
     
-    <!-- NUEVO: Modal Seleccionar Cliente (Fiado) -->
     <div class="overlay" id="modal-clientes">
         <div class="modal">
             <h2>¿A quién le fiamos?</h2>
             <p style="color: #5f6368; margin-bottom:15px;">Seleccione un cliente de la libreta:</p>
-            <div id="lista-clientes-div" class="lista-scroll">
-                <!-- Se llena con los clientes del Excel -->
-            </div>
+            <div id="lista-clientes-div" class="lista-scroll"></div>
             <div class="acciones-modal">
                 <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-clientes')">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Pago Mixto -->
+    <div class="overlay" id="modal-pagar-deuda">
+        <div class="modal">
+            <h2>Ingresar Pago de Libreta</h2>
+            
+            <div class="grupo-input-mixto" style="flex-direction: column; align-items: stretch; gap: 5px;">
+                <label style="text-align: left;">¿Qué cliente está pagando?</label>
+                <select id="select-cliente-pago" style="padding: 12px; font-size: 1.2rem; border-radius: 6px; border: 1px solid #ccc;">
+                    </select>
+            </div>
+
+            <div class="grupo-input-mixto" style="flex-direction: column; align-items: stretch; gap: 5px;">
+                <label style="text-align: left;">¿Cuánta plata entrega?</label>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span style="font-size: 1.5rem; color:#5f6368">$</span>
+                    <input type="number" id="input-monto-deuda" class="input-dinero" style="width: 100%; text-align: left;" min="0" placeholder="Ej: 5000">
+                </div>
+            </div>
+            
+            <p style="text-align: left; margin-bottom: 5px; font-weight: bold; color: #5f6368;">¿Cómo pagó?</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-modal" style="background-color: #34a853; flex: 1;" onclick="enviarPagoDeuda('Efectivo')">EN EFECTIVO</button>
+                <button class="btn-modal" style="background-color: #009ee3; flex: 1;" onclick="enviarPagoDeuda('MP')">TRANSF. / MP</button>
+            </div>
+            
+            <div class="acciones-modal" style="margin-top: 15px;">
+                <button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-pagar-deuda')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="overlay" id="modal-mixto">
         <div class="modal">
             <h2>Dividir Pago</h2>
@@ -174,11 +202,12 @@
 
     <script>
         // ========================================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbx_kiqZweqndSZ-jWQbgk7x-A0HakBF-fiI9yiAYWuhwazQClBEwPHJkgC8yVgduaTCfQ/exec';
+        // ¡¡¡ ATENCIÓN !!! PEGAR TU URL NUEVA ABAJO
         // ========================================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxCwztP0RlZPdxzpCapXIoNdtBanJLORdO1fFsYx0qMlTnzpdB3Zty_Usmx4CEvJNd0XA/exec';
         
         let catalogoProductos = []; 
-        let directorioClientes = []; // Guardamos los clientes acá
+        let directorioClientes = []; 
         let ticketActual = [];
         let totalTicket = 0;
 
@@ -202,9 +231,7 @@
             return parseFloat(str) || 0;
         }
 
-        // Ahora descargamos Productos y Clientes al mismo tiempo al abrir la caja
         function obtenerDatosDeSheets() {
-            // Buscar productos
             fetch(`${API_URL}?accion=obtenerProductos`)
                 .then(response => response.json())
                 .then(data => {
@@ -212,19 +239,11 @@
                     estadoDiv.innerText = `Listo - ${catalogoProductos.length} productos`;
                     estadoDiv.style.backgroundColor = '#e6f4ea';
                     estadoDiv.style.color = '#137333';
-                })
-                .catch(error => {
-                    estadoDiv.innerText = 'Error de conexión';
-                    estadoDiv.style.backgroundColor = '#fce8e6';
-                    estadoDiv.style.color = '#c5221f';
-                });
+                }).catch(() => { estadoDiv.innerText = 'Error conexión'; estadoDiv.style.backgroundColor = '#fce8e6'; estadoDiv.style.color = '#c5221f'; });
                 
-            // Buscar Clientes
             fetch(`${API_URL}?accion=obtenerClientes`)
                 .then(response => response.json())
-                .then(data => {
-                    directorioClientes = data;
-                });
+                .then(data => { directorioClientes = data; });
         }
 
         inputBuscador.addEventListener('keypress', function(e) {
@@ -239,14 +258,10 @@
             if (textoBusqueda === "") return;
             let productoEncontrado = catalogoProductos.find(p => p.codigo === textoBusqueda);
             
-            if (productoEncontrado) {
-                agregarAlTicket(productoEncontrado);
-            } else {
+            if (productoEncontrado) agregarAlTicket(productoEncontrado);
+            else {
                 textoBusqueda = textoBusqueda.toLowerCase();
-                let resultados = catalogoProductos.filter(p => 
-                    p.nombre.toLowerCase().includes(textoBusqueda) || p.codigo.includes(textoBusqueda)
-                );
-                
+                let resultados = catalogoProductos.filter(p => p.nombre.toLowerCase().includes(textoBusqueda) || p.codigo.includes(textoBusqueda));
                 if (resultados.length === 1) agregarAlTicket(resultados[0]);
                 else if (resultados.length > 1) mostrarModalBusqueda(resultados);
                 else alert("No se encontró el producto.");
@@ -301,7 +316,6 @@
             });
 
             spanTotal.innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
-            
             let digitos = totalTicket.toFixed(2).toString().length;
             if(digitos > 9) spanTotal.className = 'total-monto monto-muy-largo';
             else if (digitos > 7) spanTotal.className = 'total-monto monto-largo';
@@ -311,23 +325,17 @@
             inputBuscador.focus();
         }
 
-        // --- SISTEMA DE COBROS Y FIADO ---
         function prepararCobroUnico(tipo) {
             if (ticketActual.length === 0) return;
             let pagos = { efectivo: 0, mp: 0, fiado: 0 };
             if (tipo === 'Efectivo') pagos.efectivo = totalTicket;
             else if (tipo === 'MP') pagos.mp = totalTicket;
-            
-            enviarVentaAlMotor(pagos, ""); // Sin cliente
+            enviarVentaAlMotor(pagos, ""); 
         }
 
-        // Abre la ventana para elegir al cliente
         function abrirModalClientes() {
             if (ticketActual.length === 0) return;
-            if (directorioClientes.length === 0) {
-                alert("No hay clientes cargados en la pestaña 'Cuentas Corrientes'. Agregue uno en el Excel primero.");
-                return;
-            }
+            if (directorioClientes.length === 0) return alert("No hay clientes cargados en el Excel.");
 
             let divClientes = document.getElementById('lista-clientes-div');
             divClientes.innerHTML = '';
@@ -335,40 +343,88 @@
             directorioClientes.forEach(cli => {
                 let div = document.createElement('div');
                 div.className = 'item-lista';
-                // Mostramos el nombre y la deuda actual que tiene en chiquito
                 let saldoFormat = parseFloat(cli.saldo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 div.innerHTML = `<span><strong>${cli.nombre}</strong></span> <span style="font-size:1rem; color:#ea4335;">(Debe $${saldoFormat})</span>`;
-                
-                div.onclick = () => {
-                    cobrarFiadoACliente(cli.nombre);
-                    cerrarModal('modal-clientes');
-                };
+                div.onclick = () => { cobrarFiadoACliente(cli.nombre); cerrarModal('modal-clientes'); };
                 divClientes.appendChild(div);
             });
             document.getElementById('modal-clientes').style.display = 'flex';
         }
 
-        // Procesa el fiado y envía el nombre
         function cobrarFiadoACliente(nombreCliente) {
             let pagos = { efectivo: 0, mp: 0, fiado: totalTicket };
             enviarVentaAlMotor(pagos, nombreCliente);
         }
+
+        // --- NUEVA LÓGICA: INGRESAR PAGO DE DEUDA ---
+        function abrirModalPagarDeuda() {
+            if (directorioClientes.length === 0) return alert("No hay clientes cargados.");
+            
+            let select = document.getElementById('select-cliente-pago');
+            select.innerHTML = '<option value="" disabled selected>-- Elija un cliente --</option>';
+            
+            directorioClientes.forEach(cli => {
+                let saldoFormat = parseFloat(cli.saldo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                select.innerHTML += `<option value="${cli.nombre}">${cli.nombre} (Debe $${saldoFormat})</option>`;
+            });
+            
+            document.getElementById('input-monto-deuda').value = '';
+            document.getElementById('modal-pagar-deuda').style.display = 'flex';
+        }
+
+        function enviarPagoDeuda(metodo) {
+            let cliente = document.getElementById('select-cliente-pago').value;
+            let monto = parseFloat(document.getElementById('input-monto-deuda').value);
+            
+            if (!cliente) return alert("Por favor seleccione un cliente.");
+            if (!monto || monto <= 0) return alert("Ingrese un monto válido mayor a 0.");
+
+            estadoDiv.innerText = 'Registrando pago...';
+            estadoDiv.style.backgroundColor = '#fff3e0';
+            estadoDiv.style.color = '#fbbc05';
+
+            let datosPago = {
+                accion: 'registrarPagoDeuda',
+                pago: {
+                    numeroTicket: Date.now().toString().slice(-6),
+                    cliente: cliente,
+                    monto: monto,
+                    metodo: metodo
+                }
+            };
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(datosPago)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    cerrarModal('modal-pagar-deuda');
+                    estadoDiv.innerText = `¡Ingreso registrado!`;
+                    estadoDiv.style.backgroundColor = '#e6f4ea';
+                    estadoDiv.style.color = '#137333';
+                    obtenerDatosDeSheets(); // Refresca los saldos automáticamente
+                    setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
+                } else throw new Error("Error");
+            })
+            .catch(error => { alert("Hubo un error al guardar."); estadoDiv.innerText = 'Error'; });
+        }
+        // ---------------------------------------------
 
         function procesarVentaMixta() {
             let valEfectivo = parseFloat(document.getElementById('input-mixto-efectivo').value) || 0;
             let valMp = parseFloat(document.getElementById('input-mixto-mp').value) || 0;
             let suma = valEfectivo + valMp;
 
-            if (Math.abs(suma - totalTicket) > 0.5) {
-                alert("Atención: Los montos ingresados no suman el total del ticket.");
-                return;
-            }
+            if (Math.abs(suma - totalTicket) > 0.5) return alert("Los montos no suman el total.");
+            
             let pagos = { efectivo: valEfectivo, mp: valMp, fiado: 0 };
             cerrarModal('modal-mixto');
-            enviarVentaAlMotor(pagos, ""); // Sin cliente
+            enviarVentaAlMotor(pagos, "");
         }
 
-        // Enviar al motor de Sheets
         function enviarVentaAlMotor(pagos, nombreCliente) {
             estadoDiv.innerText = 'Registrando...';
             estadoDiv.style.backgroundColor = '#fff3e0';
@@ -379,7 +435,7 @@
                 ventas: {
                     numeroTicket: Date.now().toString().slice(-6),
                     pagos: pagos,
-                    cliente: nombreCliente, // ACA ENVIAMOS EL NOMBRE DEL CLIENTE
+                    cliente: nombreCliente,
                     detalle: ticketActual
                 }
             };
@@ -397,19 +453,13 @@
                     estadoDiv.innerText = `¡Cobro exitoso!`;
                     estadoDiv.style.backgroundColor = '#e6f4ea';
                     estadoDiv.style.color = '#137333';
-                    // Si hubo fiado, recargamos la lista de clientes para actualizar la deuda
                     if (nombreCliente !== "") obtenerDatosDeSheets();
-                    
                     setTimeout(() => { estadoDiv.innerText = 'Listo para cobrar'; }, 3000);
-                } else throw new Error("Error del servidor");
+                } else throw new Error("Error");
             })
-            .catch(error => {
-                alert("Hubo un error al guardar la venta. Intente de nuevo.");
-                estadoDiv.innerText = 'Error al guardar';
-            });
+            .catch(error => { alert("Hubo un error al guardar la venta."); estadoDiv.innerText = 'Error'; });
         }
 
-        // --- Modales Utilitarios ---
         function abrirModalMixto() {
             if (ticketActual.length === 0) return;
             document.getElementById('total-mixto-display').innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
@@ -443,10 +493,7 @@
                 div.className = 'item-lista';
                 let precioLimpio = limpiarPrecio(prod.precioVenta);
                 div.innerHTML = `<span><strong>${prod.nombre}</strong></span> <span style="color:#1a73e8; font-weight:bold;">$${precioLimpio.toLocaleString('es-AR', {minimumFractionDigits: 2})}</span>`;
-                div.onclick = () => {
-                    agregarAlTicket(prod);
-                    cerrarModal('modal-busqueda');
-                };
+                div.onclick = () => { agregarAlTicket(prod); cerrarModal('modal-busqueda'); };
                 contResultados.appendChild(div);
             });
             document.getElementById('modal-busqueda').style.display = 'flex';
@@ -458,10 +505,8 @@
         }
         
         document.addEventListener('click', function(e) {
-            let mBusqueda = document.getElementById('modal-busqueda').style.display === 'flex';
-            let mMixto = document.getElementById('modal-mixto').style.display === 'flex';
-            let mCli = document.getElementById('modal-clientes').style.display === 'flex';
-            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && !mBusqueda && !mMixto && !mCli) {
+            let modalesAbiertos = document.querySelectorAll('.overlay[style="display: flex;"]');
+            if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && modalesAbiertos.length === 0) {
                  inputBuscador.focus();
             }
         });
