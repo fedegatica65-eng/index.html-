@@ -216,4 +216,346 @@
             </div>
             <div style="display:flex; gap:10px;">
                 <div class="grupo-input" style="flex:1;">
-                    <label>Categoría
+                    <label>Categoría:</label>
+                    <select id="nuevo-prod-cat" class="input-dinero"></select>
+                </div>
+                <div class="grupo-input" style="flex:1;"><label>Margen (%):</label><input type="number" id="nuevo-prod-margen" class="input-dinero" value="30" oninput="calcularPrecioVentaModal()"></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div class="grupo-input"><label>Costo ($):</label><input type="number" id="nuevo-prod-costo" class="input-dinero" oninput="calcularPrecioVentaModal()" step="any"></div>
+                <div class="grupo-input"><label>Precio Venta (Aprox):</label><input type="number" id="nuevo-prod-venta" class="input-dinero" readonly style="background:#e6f4ea; font-weight:bold; color:#137333;"></div>
+            </div>
+            <div class="grupo-input"><label style="color:#673ab7;">Cant. Comprada:</label><input type="number" id="nuevo-prod-cant" class="input-dinero" style="border-color:#673ab7;" step="any"></div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-nuevo-prod'); document.getElementById('input-buscador-compra').focus();">Cancelar</button><button class="btn-modal btn-confirmar" onclick="agregarNuevoProductoACompra()">Crear y Añadir</button></div>
+        </div>
+    </div>
+
+    <!-- CIERRE DE CAJA -->
+    <div class="overlay" id="modal-cierre">
+        <div class="modal">
+            <h2 style="color: #f29900; font-size: 2rem; margin-bottom: 5px;">Arqueo de Caja</h2>
+            <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                <div class="texto-arqueo">🟢 Fondo Inicial (Efe): <span id="cierre-fondo-efe" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div class="texto-arqueo">🟢 Fondo Inicial (MP): <span id="cierre-fondo-mp" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div class="texto-arqueo">💵 Ventas en Efectivo: <span id="cierre-ventas-efe" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div style="font-size: 0.95rem; color: #d32f2f; margin-bottom: 3px;">🔴 Menos Retiros (Efe): <span id="cierre-retiros-efe" style="float: right;">-$0.00</span></div>
+                <div style="font-size: 0.95rem; color: #d32f2f; padding-bottom: 6px; border-bottom: 1px solid #ccc; margin-bottom: 6px;">🔴 Menos Proveedores (Efe): <span id="cierre-compras-efe" style="float: right;">-$0.00</span></div>
+                
+                <div style="font-size: 1.2rem; font-weight: bold; color: #34a853; padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid #ccc;">
+                    💵 EFECTIVO EN CAJA: <span id="cierre-efe-total" style="float: right;">$0.00</span>
+                </div>
+                
+                <div class="texto-arqueo">📱 Ventas / Ingresos (MP): <span id="cierre-ventas-mp" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div style="font-size: 0.95rem; color: #d32f2f; margin-bottom: 3px;">🔴 Menos Retiros (MP): <span id="cierre-retiros-mp" style="float: right;">-$0.00</span></div>
+                <div style="font-size: 0.95rem; color: #d32f2f; padding-bottom: 6px; border-bottom: 1px solid #ccc; margin-bottom: 6px;">🔴 Menos Proveedores (MP): <span id="cierre-compras-mp" style="float: right;">-$0.00</span></div>
+
+                <div style="font-size: 1.2rem; font-weight: bold; color: #009ee3; padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid #ccc;">
+                    📱 TRANSF / MP TOTAL: <span id="cierre-mp" style="float: right;">$0.00</span>
+                </div>
+
+                <div class="texto-arqueo">📖 Fiados del Día: <span id="cierre-fiado" style="color: #ea4335; float: right; font-weight:bold;">$0.00</span></div>
+                
+                <div style="font-size: 1.3rem; font-weight: bold; color: #1a73e8; margin-top: 5px;">
+                    💰 BALANCE GENERAL TOTAL: <span id="cierre-total" style="float: right;">$0.00</span>
+                </div>
+            </div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-cierre')">Cerrar</button><button class="btn-modal" style="background-color: #f29900;" onclick="guardarCierreEnPlanilla()">💾 Guardar Cierre</button></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyQMay1u4OLULJW1YPVALhbgmjR2xigcOZHFWom-8XHwIxijMWGnPJq7xE2fkcEJwEbkA/exec'; // <-- URL DE APPS SCRIPT
+        
+        let catalogoProductos = [], directorioClientes = [], ticketActual = [], subtotalTicket = 0, descuentoActual = 0, totalTicket = 0;
+        let datosCierreActual = {}; 
+        let itemsCompraTemporal = []; 
+        let productoEnFoco = null;
+
+        const inputBuscador = document.getElementById('input-buscador');
+        const estadoDiv = document.getElementById('estado');
+        const spanTotal = document.getElementById('monto-total');
+        const botonesPago = document.querySelectorAll('.btn-pago');
+
+        window.onload = function() { inputBuscador.focus(); obtenerDatosDeSheets(); };
+
+        function setEstado(texto, colorFondo, colorTexto) { estadoDiv.innerText = texto; estadoDiv.style.backgroundColor = colorFondo; estadoDiv.style.color = colorTexto; }
+
+        function limpiarPrecio(precio) {
+            if (!precio) return 0;
+            let str = String(precio).trim().replace('$', '');
+            if (str.includes(',') && str.indexOf(',') > str.indexOf('.')) { str = str.replace(/\./g, '').replace(',', '.'); } 
+            else if (str.includes(',') && str.indexOf('.') > str.indexOf(',')) { str = str.replace(/,/g, ''); } 
+            else if (str.includes(',') && !str.includes('.')) { str = str.replace(',', '.'); }
+            return parseFloat(str) || 0;
+        }
+
+        function obtenerDatosDeSheets() {
+            fetch(`${API_URL}?accion=obtenerProductos`).then(r => r.json()).then(data => { 
+                catalogoProductos = data; 
+                actualizarMaestroCategorias();
+                setEstado(`Listo - ${catalogoProductos.length} prod`, '#e6f4ea', '#137333'); 
+            }).catch(() => setEstado('Error', '#fce8e6', '#c5221f'));
+            fetch(`${API_URL}?accion=obtenerClientes`).then(r => r.json()).then(data => { directorioClientes = data; });
+        }
+
+        function actualizarMaestroCategorias() {
+            let categoriasDefault = ['Almacén', 'Bebidas', 'Golosinas', 'Limpieza', 'Lácteos', 'Kiosco', 'Panadería', 'Varios'];
+            let categoriasSet = new Set(categoriasDefault);
+            catalogoProductos.forEach(p => { if(p.categoria) categoriasSet.add(p.categoria); });
+            
+            let selectCat = document.getElementById('nuevo-prod-cat');
+            selectCat.innerHTML = '';
+            categoriasSet.forEach(cat => {
+                selectCat.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        /* ----- POS PRINCIPAL ----- */
+        inputBuscador.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); buscarProductoVenta(this.value.trim()); this.value = ''; } });
+
+        function buscarProductoVenta(texto) {
+            if (!texto) return;
+            let p = catalogoProductos.find(p => p.codigo === texto);
+            if (p) agregarAlTicket(p);
+            else {
+                let res = catalogoProductos.filter(p => p.nombre.toLowerCase().includes(texto.toLowerCase()) || p.codigo.includes(texto.toLowerCase()));
+                if (res.length === 1) agregarAlTicket(res[0]); else if (res.length > 1) mostrarModalBusqueda(res); else alert("Producto no encontrado.");
+            }
+        }
+
+        function agregarAlTicket(prod) {
+            if (prod.stockActual <= prod.stockMinimo) alert(`⚠️ STOCK BAJO: "${prod.nombre}" tiene ${prod.stockActual} unidades.`);
+            let item = ticketActual.find(i => i.codigo === prod.codigo);
+            let precio = limpiarPrecio(prod.precioVenta);
+            if (item) { item.cantidad++; item.total = item.cantidad * item.precioUnitario; } 
+            else { ticketActual.push({ codigo: prod.codigo, nombre: prod.nombre, cantidad: 1, precioUnitario: precio, total: precio }); }
+            actualizarVistaTicket();
+        }
+
+        function cambiarCantidad(index, val) { let cant = parseFloat(val); if (isNaN(cant) || cant <= 0) cant = 1; ticketActual[index].cantidad = cant; ticketActual[index].total = cant * ticketActual[index].precioUnitario; actualizarVistaTicket(); }
+        function quitarDelTicket(index) { ticketActual.splice(index, 1); actualizarVistaTicket(); }
+
+        function actualizarVistaTicket() {
+            let lista = document.getElementById('lista-ticket'); lista.innerHTML = ''; subtotalTicket = 0;
+            ticketActual.forEach((item, index) => {
+                subtotalTicket += item.total;
+                lista.innerHTML += `<tr><td><strong>${item.nombre}</strong></td><td class="col-cant"><input type="number" class="input-cant" value="${item.cantidad}" min="0.001" step="any" onchange="cambiarCantidad(${index}, this.value)"></td><td class="col-precio">$${item.precioUnitario.toLocaleString('es-AR')}</td><td class="col-precio" style="font-weight:bold; color:#1a73e8;">$${item.total.toLocaleString('es-AR', {minimumFractionDigits:2})}</td><td class="col-quitar"><button class="btn-quitar" onclick="quitarDelTicket(${index})">X</button></td></tr>`;
+            });
+            if (descuentoActual > subtotalTicket) descuentoActual = 0;
+            totalTicket = subtotalTicket - descuentoActual;
+            spanTotal.innerText = totalTicket.toLocaleString('es-AR', {minimumFractionDigits: 2});
+            let aviso = document.getElementById('aviso-descuento');
+            if (descuentoActual > 0) { aviso.style.display = 'block'; aviso.innerText = `Subtotal: $${subtotalTicket.toLocaleString('es-AR')} (-$${descuentoActual} desc)`; } else { aviso.style.display = 'none'; }
+            botonesPago.forEach(btn => btn.disabled = (ticketActual.length === 0));
+        }
+
+        function enviarVentaAlMotor(pagos, cliente) {
+            setEstado('Registrando...', '#fff3e0', '#fbbc05');
+            let datos = { accion: 'registrarVenta', ventas: { numeroTicket: Date.now().toString().slice(-6), pagos: pagos, cliente: cliente, descuento: descuentoActual, detalle: ticketActual } };
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(datos) }).then(r => r.json()).then(d => {
+                if(d.status === 'success') { ticketActual=[]; descuentoActual=0; actualizarVistaTicket(); setEstado('¡Cobro Exitoso!', '#e6f4ea', '#137333'); obtenerDatosDeSheets(); }
+            });
+        }
+        function prepararCobroUnico(t) { let p = {efectivo:0, mp:0, fiado:0}; if(t==='Efectivo') p.efectivo=totalTicket; else p.mp=totalTicket; enviarVentaAlMotor(p, ""); }
+
+        /* ----- MODALES Y LIBRETA (FIADO) ----- */
+        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; inputBuscador.focus(); }
+        
+        function abrirModalClientes() {
+            let div = document.getElementById('lista-clientes-div');
+            div.innerHTML = '';
+            if (directorioClientes.length === 0) {
+                div.innerHTML = '<div style="padding:15px; text-align:center;">No hay clientes en Cuentas Corrientes.</div>';
+            } else {
+                directorioClientes.forEach(c => {
+                    div.innerHTML += `<div class="item-lista" onclick="seleccionarClienteFiado('${c.nombre}')"><strong>${c.nombre}</strong> <span style="color:#d93025;">Saldo: $${c.saldo.toLocaleString('es-AR')}</span></div>`;
+                });
+            }
+            document.getElementById('modal-clientes').style.display = 'flex';
+        }
+
+        function seleccionarClienteFiado(nombreCliente) {
+            cerrarModal('modal-clientes');
+            enviarVentaAlMotor({ efectivo: 0, mp: 0, fiado: totalTicket }, nombreCliente);
+        }
+
+        function abrirModalDescuento() { document.getElementById('input-valor-descuento').value=''; document.getElementById('modal-descuento').style.display='flex'; document.getElementById('input-valor-descuento').focus(); }
+        function aplicarDescuento() { let m = parseFloat(document.getElementById('input-valor-descuento').value)||0; if(m<0 || m>=subtotalTicket) return alert("Monto inválido"); descuentoActual = m; cerrarModal('modal-descuento'); actualizarVistaTicket(); }
+        function abrirModalMixto() { document.getElementById('modal-mixto').style.display='flex'; }
+        function calcularMixto(o) { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(o==='efectivo' && e<=totalTicket) document.getElementById('input-mixto-mp').value=(totalTicket-e).toFixed(2); else if(o==='mp' && m<=totalTicket) document.getElementById('input-mixto-efectivo').value=(totalTicket-m).toFixed(2); }
+        function procesarVentaMixta() { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(Math.abs((e+m)-totalTicket)>0.5) return alert("No suma el total."); cerrarModal('modal-mixto'); enviarVentaAlMotor({efectivo:e, mp:m, fiado:0}, ""); }
+        
+        function abrirModalApertura() { 
+            document.getElementById('input-fondo-efe').value = ''; 
+            document.getElementById('input-fondo-mp').value = ''; 
+            document.getElementById('modal-apertura').style.display = 'flex'; 
+            document.getElementById('input-fondo-efe').focus();
+        }
+        function guardarApertura() { 
+            let efe = parseFloat(document.getElementById('input-fondo-efe').value) || 0;
+            let mp = parseFloat(document.getElementById('input-fondo-mp').value) || 0;
+            setEstado('Guardando apertura...', '#fff3e0', '#fbbc05');
+            fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarApertura', monto: {efectivo: efe, mp: mp}})}).then(r=>r.json()).then(d=>{
+                if(d.status==='success'){ cerrarModal('modal-apertura'); setEstado('¡Apertura registrada!', '#e6f4ea','#137333'); }
+            });
+        }
+        
+        function abrirModalPagarDeuda() {
+            let select = document.getElementById('select-cliente-pago');
+            select.innerHTML = '';
+            directorioClientes.forEach(c => {
+                select.innerHTML += `<option value="${c.nombre}">${c.nombre} (Debe: $${c.saldo.toLocaleString('es-AR')})</option>`;
+            });
+            document.getElementById('input-monto-deuda').value = '';
+            document.getElementById('modal-pagar-deuda').style.display = 'flex';
+        }
+        function enviarPagoDeuda(metodo) {
+            let cliente = document.getElementById('select-cliente-pago').value;
+            let monto = parseFloat(document.getElementById('input-monto-deuda').value);
+            if (!cliente || isNaN(monto) || monto <= 0) return alert("Completá los datos correctamente.");
+            setEstado('Registrando pago...', '#fff3e0', '#fbbc05');
+            let datos = { accion: 'registrarPagoDeuda', pago: { cliente: cliente, monto: monto, metodo: metodo, numeroTicket: Date.now().toString().slice(-6) } };
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(datos) }).then(r => r.json()).then(d => {
+                if(d.status === 'success') { cerrarModal('modal-pagar-deuda'); setEstado('¡Pago Registrado!', '#e6f4ea', '#137333'); obtenerDatosDeSheets(); }
+            });
+        }
+
+        /* ----- RETIRO DE CAJA ----- */
+        function abrirModalRetiro() { document.getElementById('retiro-motivo').value = ''; document.getElementById('retiro-monto').value = ''; document.getElementById('modal-retiro').style.display = 'flex'; }
+        function procesarRetiro() {
+            let motivo = document.getElementById('retiro-motivo').value; let monto = parseFloat(document.getElementById('retiro-monto').value); let metodo = document.getElementById('retiro-metodo').value;
+            if(!motivo || isNaN(monto) || monto <= 0) return alert("Completá todos los campos.");
+            setEstado('Registrando retiro...', '#fff3e0', '#fbbc05');
+            fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarRetiro', retiro: {motivo:motivo, monto:monto, metodo:metodo}})}).then(r=>r.json()).then(d=>{
+                if(d.status==='success'){ cerrarModal('modal-retiro'); setEstado('Retiro Registrado', '#e6f4ea', '#137333'); }
+            });
+        }
+
+        /* ----- INGRESOS / COMPRAS ----- */
+        function abrirModalCompra() {
+            itemsCompraTemporal = []; 
+            document.getElementById('compra-prov').value = ''; 
+            document.getElementById('compra-factura').value = '';
+            document.getElementById('compra-total').value = '0.00';
+            actualizarTablaCompras(); 
+            document.getElementById('modal-compra').style.display = 'flex'; 
+            document.getElementById('input-buscador-compra').focus();
+        }
+
+        document.getElementById('input-buscador-compra').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); let cod = this.value.trim(); if(!cod) return;
+                let prod = catalogoProductos.find(p => p.codigo === cod);
+                if(prod) {
+                    productoEnFoco = prod;
+                    document.getElementById('ingreso-stock-titulo').innerText = "Ingreso de: " + prod.nombre;
+                    document.getElementById('ingreso-stock-cant').value = '';
+                    document.getElementById('ingreso-stock-costo').value = prod.precioCosto || 0;
+                    document.getElementById('modal-ingreso-stock').style.display = 'flex';
+                    document.getElementById('ingreso-stock-cant').focus();
+                } else {
+                    document.getElementById('nuevo-prod-cod').value = cod; 
+                    document.getElementById('nuevo-prod-nom').value = ''; 
+                    document.getElementById('nuevo-prod-costo').value = '';
+                    document.getElementById('nuevo-prod-cant').value = ''; 
+                    document.getElementById('nuevo-prod-venta').value = '0.00';
+                    actualizarMaestroCategorias();
+                    document.getElementById('modal-nuevo-prod').style.display = 'flex'; 
+                    document.getElementById('nuevo-prod-nom').focus();
+                }
+                this.value = ''; 
+            }
+        });
+
+        function confirmarIngresoStock() {
+            let cant = parseFloat(document.getElementById('ingreso-stock-cant').value);
+            let costo = parseFloat(document.getElementById('ingreso-stock-costo').value);
+            if(isNaN(cant) || cant <= 0) return alert("Ingrese cantidad válida.");
+            itemsCompraTemporal.push({ codigo: productoEnFoco.codigo, nombre: productoEnFoco.nombre, cantidad: cant, costo: costo, nuevo: false });
+            cerrarModal('modal-ingreso-stock'); actualizarTablaCompras(); document.getElementById('input-buscador-compra').focus();
+        }
+
+        function calcularPrecioVentaModal() {
+            let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0; let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0;
+            if(margen < 100) document.getElementById('nuevo-prod-venta').value = (costo / (1 - (margen / 100))).toFixed(2);
+        }
+
+        function agregarNuevoProductoACompra() {
+            let cod = document.getElementById('nuevo-prod-cod').value; 
+            let nom = document.getElementById('nuevo-prod-nom').value;
+            let cat = document.getElementById('nuevo-prod-cat').value || "General";
+            let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0; 
+            let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0; 
+            let cant = parseFloat(document.getElementById('nuevo-prod-cant').value) || 0;
+            if(!nom || cant <= 0) return alert("El nombre y la cantidad son obligatorios.");
+            itemsCompraTemporal.push({ codigo: cod, nombre: nom, categoria: cat, costo: costo, margen: (margen/100), cantidad: cant, nuevo: true });
+            cerrarModal('modal-nuevo-prod'); actualizarTablaCompras(); document.getElementById('input-buscador-compra').focus();
+        }
+
+        function actualizarTablaCompras() {
+            let body = document.getElementById('lista-items-compra'); body.innerHTML = '';
+            let sumaTotalFactura = 0;
+            
+            itemsCompraTemporal.forEach((it, i) => {
+                let subtotalItem = it.cantidad * it.costo;
+                sumaTotalFactura += subtotalItem;
+                let badge = it.nuevo ? '<span style="font-size:0.7rem; background:#137333; color:white; padding:2px 4px; border-radius:3px;">NUEVO</span>' : '';
+                body.innerHTML += `<tr><td>${it.nombre} ${badge}</td><td style="font-weight:bold;">+${it.cantidad}</td><td>$${it.costo.toLocaleString('es-AR')}</td><td><button onclick="itemsCompraTemporal.splice(${i},1); actualizarTablaCompras()" style="background:#fce8e6; border:none; color:red; cursor:pointer;">X</button></td></tr>`;
+            });
+
+            document.getElementById('compra-total').value = sumaTotalFactura.toFixed(2);
+        }
+
+        function guardarCompra() {
+            let prov = document.getElementById('compra-prov').value || "Varios"; 
+            let factura = document.getElementById('compra-factura').value || "";
+            let total = parseFloat(document.getElementById('compra-total').value); 
+            let metodo = document.getElementById('compra-metodo').value;
+            
+            if(isNaN(total) || total < 0) return alert("Ingresá el monto de la factura.");
+            if(itemsCompraTemporal.length === 0) return alert("No hay items cargados en la factura.");
+
+            setEstado('Procesando compra...', '#fff3e0', '#fbbc05');
+            fetch(API_URL, {
+                method: 'POST', 
+                body: JSON.stringify({
+                    accion: 'registrarCompra', 
+                    compra: { proveedor: prov, numeroFactura: factura, total: total, metodo: metodo, detalle: itemsCompraTemporal }
+                })
+            }).then(r=>r.json()).then(d=>{
+                if(d.status==='success'){ cerrarModal('modal-compra'); setEstado('¡Stock y Costos actualizados!', '#e6f4ea', '#137333'); obtenerDatosDeSheets(); }
+            });
+        }
+
+        /* ----- CIERRE DE CAJA ----- */
+        function abrirModalCierre() {
+            setEstado('Calculando...', '#fff3e0', '#fbbc05');
+            fetch(`${API_URL}?accion=obtenerCierreCaja`).then(r => r.json()).then(data => {
+                datosCierreActual = data; 
+                document.getElementById('cierre-fondo-efe').innerText = '$' + parseFloat(data.fondoInicialEfe || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-fondo-mp').innerText = '$' + parseFloat(data.fondoInicialMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                
+                document.getElementById('cierre-ventas-efe').innerText = '$' + parseFloat(data.ventasEfectivo).toLocaleString('es-AR');
+                document.getElementById('cierre-retiros-efe').innerText = '-$' + parseFloat(data.retirosEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-compras-efe').innerText = '-$' + parseFloat(data.comprasEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-efe-total').innerText = '$' + parseFloat(data.efectivoEnCaja).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                
+                document.getElementById('cierre-ventas-mp').innerText = '$' + parseFloat(data.ventasMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-retiros-mp').innerText = '-$' + parseFloat(data.retirosMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-compras-mp').innerText = '-$' + parseFloat(data.comprasMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-mp').innerText = '$' + parseFloat(data.mp).toLocaleString('es-AR', {minimumFractionDigits: 2});
+
+                document.getElementById('cierre-fiado').innerText = '$' + parseFloat(data.fiado).toLocaleString('es-AR');
+                document.getElementById('cierre-total').innerText = '$' + parseFloat(data.totalReal).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                setEstado(`Listo`, '#e6f4ea', '#137333'); document.getElementById('modal-cierre').style.display = 'flex';
+            });
+        }
+        function guardarCierreEnPlanilla() {
+            if (!confirm("¿Guardar Cierre definitivo?")) return;
+            fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarCierre', cierre:datosCierreActual})}).then(()=>{cerrarModal('modal-cierre'); setEstado('Cierre Guardado', '#e6f4ea','#137333')});
+        }
+        
+        document.addEventListener('click', function(e) { let mod = document.querySelectorAll('.overlay[style="display: flex;"]'); if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && mod.length === 0) inputBuscador.focus(); });
+    </script>
+</body>
+</html>
