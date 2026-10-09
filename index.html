@@ -264,7 +264,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyQMay1u4OLULJW1YPVALhbgmjR2xigcOZHFWom-8XHwIxijMWGnPJq7xE2fkcEJwEbkA/exec'; // <-- URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxuEkBkCcRbdvWDJXuO8D1D1vOigTAJ1OhdpAtgpeSBJLWFTVr9wTo1xxiRU8oy0dOAJA/exec'; // <-- URL DE APPS SCRIPT
         
         let catalogoProductos = [], directorioClientes = [], ticketActual = [], subtotalTicket = 0, descuentoActual = 0, totalTicket = 0;
         let datosCierreActual = {}; 
@@ -385,12 +385,40 @@
         function calcularMixto(o) { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(o==='efectivo' && e<=totalTicket) document.getElementById('input-mixto-mp').value=(totalTicket-e).toFixed(2); else if(o==='mp' && m<=totalTicket) document.getElementById('input-mixto-efectivo').value=(totalTicket-m).toFixed(2); }
         function procesarVentaMixta() { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(Math.abs((e+m)-totalTicket)>0.5) return alert("No suma el total."); cerrarModal('modal-mixto'); enviarVentaAlMotor({efectivo:e, mp:m, fiado:0}, ""); }
         
+        /* ----------------------------------------------------
+           NUEVA FUNCION DE APERTURA DE CAJA CON AUTOCOMPLETADO
+           ---------------------------------------------------- */
         function abrirModalApertura() { 
-            document.getElementById('input-fondo-efe').value = ''; 
-            document.getElementById('input-fondo-mp').value = ''; 
-            document.getElementById('modal-apertura').style.display = 'flex'; 
-            document.getElementById('input-fondo-efe').focus();
+            setEstado('Consultando saldo anterior...', '#fff3e0', '#fbbc05');
+            
+            // 1. Consultamos el saldo actual al servidor antes de abrir la ventana
+            fetch(`${API_URL}?accion=obtenerCierreCaja`)
+            .then(r => r.json())
+            .then(data => {
+                let efe = parseFloat(data.efectivoEnCaja);
+                if (isNaN(efe)) efe = 0;
+                let mp = parseFloat(data.mp);
+                if (isNaN(mp)) mp = 0;
+                
+                // 2. Precargamos los valores exactos que quedaron en el sistema
+                // (Si es mayor a 0, te lo escribe. Si no, lo deja vacío)
+                document.getElementById('input-fondo-efe').value = efe !== 0 ? efe.toFixed(2) : ''; 
+                document.getElementById('input-fondo-mp').value = mp !== 0 ? mp.toFixed(2) : ''; 
+                
+                document.getElementById('modal-apertura').style.display = 'flex'; 
+                document.getElementById('input-fondo-efe').focus();
+                setEstado('Caja cargada', '#e6f4ea', '#137333');
+            })
+            .catch(() => {
+                // Si falla la conexión por algo, lo abre vacío para que no te trabes
+                document.getElementById('input-fondo-efe').value = ''; 
+                document.getElementById('input-fondo-mp').value = ''; 
+                document.getElementById('modal-apertura').style.display = 'flex'; 
+                document.getElementById('input-fondo-efe').focus();
+                setEstado('Error de red', '#fce8e6', '#c5221f');
+            });
         }
+        
         function guardarApertura() { 
             let efe = parseFloat(document.getElementById('input-fondo-efe').value) || 0;
             let mp = parseFloat(document.getElementById('input-fondo-mp').value) || 0;
