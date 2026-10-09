@@ -5,48 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noble Cosecha - POS</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 15px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 10px 15px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
         
-        .header { display: flex; flex-direction: column; background-color: #fff; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; flex-shrink: 0; gap: 12px; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .header-top h1 { margin: 0; color: #1a73e8; font-size: 1.7rem; font-weight: 700; }
-        .header-acciones { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        /* HEADER COMPACTO Y ARRIBA */
+        .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 10px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 10px; flex-shrink: 0; gap: 15px; flex-wrap: wrap; }
+        .header-izquierda { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .header h1 { margin: 0; color: #1a73e8; font-size: 1.4rem; font-weight: 700; }
+        .header-acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         
-        .btn-header { background: #e8f0fe; color: #1a73e8; border: 2px solid #1a73e8; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .btn-header { background: #e8f0fe; color: #1a73e8; border: 2px solid #1a73e8; padding: 6px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
         .btn-header:hover { background: #d2e3fc; }
         .btn-apertura { background: #e6f4ea; color: #137333; border: 2px solid #137333; }
         .btn-cierre { background: #fff3e0; color: #f29900; border: 2px solid #f29900; }
         .btn-compras { background: #f3e8fd; color: #673ab7; border: 2px solid #673ab7; }
         .btn-retiro { background: #fce8e6; color: #d32f2f; border: 2px solid #d32f2f; }
 
-        #estado { font-weight: bold; color: #137333; background: #e6f4ea; padding: 8px 18px; border-radius: 20px; font-size: 1.1rem; }
+        #estado { font-weight: bold; color: #137333; background: #e6f4ea; padding: 6px 12px; border-radius: 15px; font-size: 0.95rem; }
         
         .main-container { display: flex; gap: 15px; flex: 1; min-height: 0; overflow: hidden; }
-        .panel-izquierdo { flex: 2.2; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-        .buscador-container { margin-bottom: 15px; flex-shrink: 0; }
-        #input-buscador { width: 100%; padding: 18px; font-size: 1.4rem; border: 2px solid #a4c2f4; border-radius: 8px; box-sizing: border-box; background-color: #f8fbff; transition: 0.2s; }
+        .panel-izquierdo { flex: 2.2; display: flex; flex-direction: column; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+        .buscador-container { margin-bottom: 12px; flex-shrink: 0; }
+        #input-buscador { width: 100%; padding: 14px; font-size: 1.3rem; border: 2px solid #a4c2f4; border-radius: 8px; box-sizing: border-box; background-color: #f8fbff; transition: 0.2s; }
         #input-buscador:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 4px rgba(26,115,232,0.1); background-color: #fff; }
         .ticket-container { flex: 1; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; }
-        th { background-color: #f1f3f4; padding: 12px 15px; text-align: left; font-size: 1.1rem; color: #5f6368; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 10; }
-        td { padding: 12px 15px; font-size: 1.2rem; border-bottom: 1px solid #eee; vertical-align: middle; color: #202124; }
+        th { background-color: #f1f3f4; padding: 10px 15px; text-align: left; font-size: 1.05rem; color: #5f6368; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 10; }
+        td { padding: 10px 15px; font-size: 1.1rem; border-bottom: 1px solid #eee; vertical-align: middle; color: #202124; }
         
         .col-cant { width: 110px; text-align: center; } 
-        .input-cant { width: 85px; font-size: 1.2rem; padding: 8px 5px; text-align: center; border: 2px solid #ccc; border-radius: 6px; font-weight: bold; color: #1a73e8; }
+        .input-cant { width: 80px; font-size: 1.1rem; padding: 6px 4px; text-align: center; border: 2px solid #ccc; border-radius: 6px; font-weight: bold; color: #1a73e8; }
         .col-precio { text-align: right; }
         .col-quitar { width: 60px; text-align: center; }
-        .btn-quitar { background: #fee8e7; color: #d32f2f; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: 0.2s; }
+        .btn-quitar { background: #fee8e7; color: #d32f2f; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.2s; }
         
-        .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-        .total-box { background: #f8fbff; padding: 12px 10px; border-radius: 12px; text-align: center; margin-bottom: 15px; border: 2px solid #1a73e8; flex-shrink: 0; }
-        .total-titulo { font-size: 1.2rem; color: #5f6368; margin-bottom: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .panel-derecho { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+        .total-box { background: #f8fbff; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 12px; border: 2px solid #1a73e8; flex-shrink: 0; }
+        .total-titulo { font-size: 1.1rem; color: #5f6368; margin-bottom: 2px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
         .total-monto-container { display: flex; align-items: baseline; justify-content: center; gap: 6px; width: 100%; }
-        .signo-peso { font-size: 2rem; color: #1a73e8; font-weight: bold; }
-        .total-monto { font-size: 3.5rem; font-weight: 800; color: #1a73e8; line-height: 1; margin: 0; letter-spacing: -1px; }
+        .signo-peso { font-size: 1.8rem; color: #1a73e8; font-weight: bold; }
+        .total-monto { font-size: 3rem; font-weight: 800; color: #1a73e8; line-height: 1; margin: 0; letter-spacing: -1px; }
         
         .seccion-cobro { display: flex; flex-direction: column; flex: 1; justify-content: flex-end; }
-        .metodos-pago { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }
-        .btn-pago { width: 100%; padding: 14px 10px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        
+        /* BOTONES DE PAGO RECTANGULARES Y ESTILIZADOS */
+        .metodos-pago { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+        .btn-pago { width: 100%; padding: 12px 10px; font-size: 1.05rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
         .btn-pago:hover { opacity: 0.92; }
         .btn-pago:disabled { background-color: #e0e0e0 !important; color: #9e9e9e !important; cursor: not-allowed; opacity: 1; }
         
@@ -80,17 +83,17 @@
 <body>
 
     <div class="header">
-        <div class="header-top">
+        <div class="header-izquierda">
             <h1>Noble Cosecha</h1>
-            <div id="estado">Cargando sistema...</div>
+            <div class="header-acciones">
+                <button class="btn-header btn-apertura" onclick="abrirModalApertura()">🟢 APERTURA</button>
+                <button class="btn-header" onclick="abrirModalPagarDeuda()">💰 PAGO LIBRETA</button>
+                <button class="btn-header btn-compras" onclick="abrirModalCompra()">📦 COMPRAS / INGRESOS</button>
+                <button class="btn-header btn-retiro" onclick="abrirModalRetiro()">💸 RETIRO CAJA</button>
+                <button class="btn-header btn-cierre" onclick="abrirModalCierre()">📊 CIERRE</button>
+            </div>
         </div>
-        <div class="header-acciones">
-            <button class="btn-header btn-apertura" onclick="abrirModalApertura()">🟢 APERTURA</button>
-            <button class="btn-header" onclick="abrirModalPagarDeuda()">💰 PAGO LIBRETA</button>
-            <button class="btn-header btn-compras" onclick="abrirModalCompra()">📦 COMPRAS / INGRESOS</button>
-            <button class="btn-header btn-retiro" onclick="abrirModalRetiro()">💸 RETIRO CAJA</button>
-            <button class="btn-header btn-cierre" onclick="abrirModalCierre()">📊 CIERRE</button>
-        </div>
+        <div id="estado">Cargando sistema...</div>
     </div>
 
     <!-- MAIN POS -->
