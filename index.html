@@ -127,7 +127,16 @@
     </div>
 
     <div class="overlay" id="modal-descuento"><div class="modal"><h2>Aplicar Descuento</h2><div style="display:flex; justify-content:center; gap:5px; margin-bottom:15px;"><span style="font-size:2rem;">$</span><input type="number" id="input-valor-descuento" class="input-dinero"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-descuento')">Cancelar</button><button class="btn-modal" style="background-color: #f29900;" onclick="aplicarDescuento()">Aplicar</button></div></div></div>
-    <div class="overlay" id="modal-apertura"><div class="modal"><h2>Apertura de Caja</h2><div style="display:flex; justify-content:center; gap:5px;"><span style="font-size:2rem;">$</span><input type="number" id="input-fondo-inicial" class="input-dinero"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-apertura')">Cancelar</button><button class="btn-modal btn-confirmar" onclick="guardarApertura()">Guardar</button></div></div></div>
+    
+    <!-- APERTURA CON EFECTIVO Y MP -->
+    <div class="overlay" id="modal-apertura">
+        <div class="modal">
+            <h2 style="color: #137333;">Apertura de Caja</h2>
+            <div class="grupo-input"><label>Fondo Inicial Efectivo (Caja Física):</label><div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem;">$</span><input type="number" id="input-fondo-efe" class="input-dinero" style="width:100%;" placeholder="0"></div></div>
+            <div class="grupo-input"><label>Fondo Inicial Transf / MP (Cuenta Digital):</label><div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem;">$</span><input type="number" id="input-fondo-mp" class="input-dinero" style="width:100%;" placeholder="0"></div></div>
+            <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-apertura')">Cancelar</button><button class="btn-modal btn-confirmar" onclick="guardarApertura()">Guardar Apertura</button></div>
+        </div>
+    </div>
     
     <div class="overlay" id="modal-pagar-deuda">
         <div class="modal">
@@ -202,7 +211,8 @@
         <div class="modal">
             <h2 style="color: #f29900; font-size: 2rem; margin-bottom: 5px;">Arqueo de Caja</h2>
             <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
-                <div class="texto-arqueo">🟢 Fondo Inicial: <span id="cierre-fondo" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div class="texto-arqueo">🟢 Fondo Inicial (Efe): <span id="cierre-fondo-efe" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div class="texto-arqueo">🟢 Fondo Inicial (MP): <span id="cierre-fondo-mp" style="float: right; font-weight:bold;">$0.00</span></div>
                 <div class="texto-arqueo">💵 Ventas en Efectivo: <span id="cierre-ventas-efe" style="float: right; font-weight:bold;">$0.00</span></div>
                 <div style="font-size: 0.95rem; color: #d32f2f; margin-bottom: 3px;">🔴 Menos Retiros (Efe): <span id="cierre-retiros-efe" style="float: right;">-$0.00</span></div>
                 <div style="font-size: 0.95rem; color: #d32f2f; padding-bottom: 6px; border-bottom: 1px solid #ccc; margin-bottom: 6px;">🔴 Menos Proveedores (Efe): <span id="cierre-compras-efe" style="float: right;">-$0.00</span></div>
@@ -216,7 +226,7 @@
                 <div style="font-size: 0.95rem; color: #d32f2f; padding-bottom: 6px; border-bottom: 1px solid #ccc; margin-bottom: 6px;">🔴 Menos Proveedores (MP): <span id="cierre-compras-mp" style="float: right;">-$0.00</span></div>
 
                 <div style="font-size: 1.2rem; font-weight: bold; color: #009ee3; padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid #ccc;">
-                    📱 TRANSF / MP NETO: <span id="cierre-mp" style="float: right;">$0.00</span>
+                    📱 TRANSF / MP TOTAL: <span id="cierre-mp" style="float: right;">$0.00</span>
                 </div>
 
                 <div class="texto-arqueo">📖 Fiados del Día: <span id="cierre-fiado" style="color: #ea4335; float: right; font-weight:bold;">$0.00</span></div>
@@ -230,7 +240,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbw-7oa4JnBeiwoALC5ey0ZfLjxvwp-Bf4OEQYeMDOkM_bmiX2gWoU2utfvMPIrd-XOguA/exec'; // <-- REEMPLAZÁ CON TU URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyWBi5YTUH_Wcam9fyd6L6r5rf2heKO24uA-BgzQDy-X-h2P92AR5tj3hl2LinvfuuX/exec'; // <-- REEMPLAZÁ CON TU URL DE APPS SCRIPT
         
         let catalogoProductos = [], directorioClientes = [], ticketActual = [], subtotalTicket = 0, descuentoActual = 0, totalTicket = 0;
         let datosCierreActual = {}; 
@@ -334,8 +344,21 @@
         function abrirModalMixto() { document.getElementById('modal-mixto').style.display='flex'; }
         function calcularMixto(o) { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(o==='efectivo' && e<=totalTicket) document.getElementById('input-mixto-mp').value=(totalTicket-e).toFixed(2); else if(o==='mp' && m<=totalTicket) document.getElementById('input-mixto-efectivo').value=(totalTicket-m).toFixed(2); }
         function procesarVentaMixta() { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(Math.abs((e+m)-totalTicket)>0.5) return alert("No suma el total."); cerrarModal('modal-mixto'); enviarVentaAlMotor({efectivo:e, mp:m, fiado:0}, ""); }
-        function abrirModalApertura() { document.getElementById('modal-apertura').style.display='flex'; }
-        function guardarApertura() { let m = parseFloat(document.getElementById('input-fondo-inicial').value); fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarApertura', monto:m})}).then(()=>{cerrarModal('modal-apertura'); setEstado('Apertura ok', '#e6f4ea','#137333')}); }
+        
+        function abrirModalApertura() { 
+            document.getElementById('input-fondo-efe').value = ''; 
+            document.getElementById('input-fondo-mp').value = ''; 
+            document.getElementById('modal-apertura').style.display = 'flex'; 
+            document.getElementById('input-fondo-efe').focus();
+        }
+        function guardarApertura() { 
+            let efe = parseFloat(document.getElementById('input-fondo-efe').value) || 0;
+            let mp = parseFloat(document.getElementById('input-fondo-mp').value) || 0;
+            setEstado('Guardando apertura...', '#fff3e0', '#fbbc05');
+            fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarApertura', monto: {efectivo: efe, mp: mp}})}).then(r=>r.json()).then(d=>{
+                if(d.status==='success'){ cerrarModal('modal-apertura'); setEstado('¡Apertura registrada!', '#e6f4ea','#137333'); }
+            });
+        }
         
         function abrirModalPagarDeuda() {
             let select = document.getElementById('select-cliente-pago');
@@ -437,7 +460,9 @@
             setEstado('Calculando...', '#fff3e0', '#fbbc05');
             fetch(`${API_URL}?accion=obtenerCierreCaja`).then(r => r.json()).then(data => {
                 datosCierreActual = data; 
-                document.getElementById('cierre-fondo').innerText = '$' + parseFloat(data.fondoInicial).toLocaleString('es-AR');
+                document.getElementById('cierre-fondo-efe').innerText = '$' + parseFloat(data.fondoInicialEfe || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-fondo-mp').innerText = '$' + parseFloat(data.fondoInicialMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                
                 document.getElementById('cierre-ventas-efe').innerText = '$' + parseFloat(data.ventasEfectivo).toLocaleString('es-AR');
                 document.getElementById('cierre-retiros-efe').innerText = '-$' + parseFloat(data.retirosEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-compras-efe').innerText = '-$' + parseFloat(data.comprasEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
