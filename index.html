@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noble Cosecha - POS</title>
+    <!-- Favicon para la pestaña del navegador -->
+    <link rel="icon" type="image/png" href="logo.png">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; margin: 0; padding: 10px 15px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
         
         /* HEADER COMPACTO Y ARRIBA */
         .header { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 10px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 10px; flex-shrink: 0; gap: 15px; flex-wrap: wrap; }
         .header-izquierda { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .header img { height: 40px; width: auto; object-fit: contain; }
         .header h1 { margin: 0; color: #1a73e8; font-size: 1.4rem; font-weight: 700; }
         .header-acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         
@@ -84,6 +87,7 @@
 
     <div class="header">
         <div class="header-izquierda">
+            <img src="logo.png" alt="Logo Noble Cosecha">
             <h1>Noble Cosecha</h1>
             <div class="header-acciones">
                 <button class="btn-header btn-apertura" onclick="abrirModalApertura()">🟢 APERTURA</button>
@@ -386,8 +390,8 @@
         function procesarVentaMixta() { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(Math.abs((e+m)-totalTicket)>0.5) return alert("No suma el total."); cerrarModal('modal-mixto'); enviarVentaAlMotor({efectivo:e, mp:m, fiado:0}, ""); }
         
         /* ----------------------------------------------------
-           NUEVA FUNCION DE APERTURA DE CAJA CON AUTOCOMPLETADO (SALDO REAL)
-           ---------------------------------------------------- */
+            NUEVA FUNCION DE APERTURA DE CAJA CON AUTOCOMPLETADO (SALDO REAL)
+            ---------------------------------------------------- */
         function abrirModalApertura() { 
             setEstado('Consultando saldo real...', '#fff3e0', '#fbbc05');
             
