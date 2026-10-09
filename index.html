@@ -52,7 +52,7 @@
         .btn-fiado { background-color: #ea4335; grid-column: span 2; }
         
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-        .modal { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;}
+        .modal { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 520px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;}
         .modal h2 { font-size: 1.6rem; margin-top: 0; color: #202124; margin-bottom: 15px;}
         .lista-scroll { overflow-y: auto; text-align: left; margin-bottom: 15px; max-height: 300px; }
         .item-lista { padding: 15px; border-bottom: 1px solid #eee; font-size: 1.2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
@@ -64,7 +64,7 @@
         .btn-modal { flex: 1; padding: 12px; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; }
         .btn-confirmar { background-color: #1a73e8; }
         .btn-cancelar { background-color: #9e9e9e; }
-        .texto-arqueo { font-size: 1.2rem; color: #3c4043; border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 8px;}
+        .texto-arqueo { font-size: 1.1rem; color: #3c4043; border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 6px;}
         
         #modal-compra .modal { max-width: 700px; }
         .tabla-mini { width: 100%; font-size: 1rem; margin-top: 10px; }
@@ -118,7 +118,6 @@
     <!-- Modales de Venta -->
     <div class="overlay" id="modal-busqueda"><div class="modal"><h2>Seleccione un producto</h2><div id="resultados-busqueda" class="lista-scroll"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-busqueda')">Cancelar</button></div></div></div>
     
-    <!-- MODAL CLIENTES (LIBRETA / FIADO) -->
     <div class="overlay" id="modal-clientes">
         <div class="modal">
             <h2>¿A quién le fiamos?</h2>
@@ -130,7 +129,6 @@
     <div class="overlay" id="modal-descuento"><div class="modal"><h2>Aplicar Descuento</h2><div style="display:flex; justify-content:center; gap:5px; margin-bottom:15px;"><span style="font-size:2rem;">$</span><input type="number" id="input-valor-descuento" class="input-dinero"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-descuento')">Cancelar</button><button class="btn-modal" style="background-color: #f29900;" onclick="aplicarDescuento()">Aplicar</button></div></div></div>
     <div class="overlay" id="modal-apertura"><div class="modal"><h2>Apertura de Caja</h2><div style="display:flex; justify-content:center; gap:5px;"><span style="font-size:2rem;">$</span><input type="number" id="input-fondo-inicial" class="input-dinero"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-apertura')">Cancelar</button><button class="btn-modal btn-confirmar" onclick="guardarApertura()">Guardar</button></div></div></div>
     
-    <!-- MODAL PAGO DEUDA -->
     <div class="overlay" id="modal-pagar-deuda">
         <div class="modal">
             <h2>Pago Libreta</h2>
@@ -146,7 +144,7 @@
     <div class="overlay" id="modal-retiro">
         <div class="modal">
             <h2 style="color: #d32f2f;">Retiro de Caja</h2>
-            <div class="grupo-input"><label>Motivo del Retiro:</label><input type="text" id="retiro-motivo" class="input-dinero" placeholder="Ej: Pago de luz, Retiro personal..."></div>
+            <div class="grupo-input"><label>Motivo del Retiro:</label><input type="text" id="retiro-motivo" class="input-dinero" placeholder="Ej: Pago de luz, Retiro sueldo..."></div>
             <div class="grupo-input"><label>Monto a Retirar:</label><div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem;">$</span><input type="number" id="retiro-monto" class="input-dinero" style="width:100%;"></div></div>
             <div class="grupo-input"><label>Sacar el dinero de:</label><select id="retiro-metodo" class="input-dinero"><option value="Efectivo">Caja Física (Efectivo)</option><option value="MP">Cuenta Digital (MP)</option></select></div>
             <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-retiro')">Cancelar</button><button class="btn-modal" style="background-color: #d32f2f;" onclick="procesarRetiro()">Registrar Retiro</button></div>
@@ -206,17 +204,24 @@
             <div style="text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
                 <div class="texto-arqueo">🟢 Fondo Inicial: <span id="cierre-fondo" style="float: right; font-weight:bold;">$0.00</span></div>
                 <div class="texto-arqueo">💵 Ventas en Efectivo: <span id="cierre-ventas-efe" style="float: right; font-weight:bold;">$0.00</span></div>
-                <div style="font-size: 0.95rem; color: #d32f2f; margin-bottom: 5px;">🔴 Menos Retiros (Efe): <span id="cierre-retiros-efe" style="float: right;">-$0.00</span></div>
-                <div style="font-size: 0.95rem; color: #d32f2f; padding-bottom: 8px; border-bottom: 1px solid #ccc; margin-bottom: 8px;">🔴 Menos Proveedores (Efe): <span id="cierre-compras-efe" style="float: right;">-$0.00</span></div>
+                <div style="font-size: 0.95rem; color: #d32f2f; margin-bottom: 3px;">🔴 Menos Retiros (Efe): <span id="cierre-retiros-efe" style="float: right;">-$0.00</span></div>
+                <div style="font-size: 0.95rem; color: #d32f2f; padding-bottom: 6px; border-bottom: 1px solid #ccc; margin-bottom: 6px;">🔴 Menos Proveedores (Efe): <span id="cierre-compras-efe" style="float: right;">-$0.00</span></div>
                 
-                <div style="font-size: 1.3rem; font-weight: bold; color: #34a853; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #ccc;">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #34a853; padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid #ccc;">
                     💵 EFECTIVO EN CAJA: <span id="cierre-efe-total" style="float: right;">$0.00</span>
                 </div>
                 
-                <div class="texto-arqueo">📱 Transf/MP Neto: <span id="cierre-mp" style="color: #009ee3; float: right; font-weight:bold;">$0.00</span></div>
+                <div class="texto-arqueo">📱 Ventas / Ingresos (MP): <span id="cierre-ventas-mp" style="float: right; font-weight:bold;">$0.00</span></div>
+                <div style="font-size: 0.95rem; color: #d32f2f; margin-bottom: 3px;">🔴 Menos Retiros (MP): <span id="cierre-retiros-mp" style="float: right;">-$0.00</span></div>
+                <div style="font-size: 0.95rem; color: #d32f2f; padding-bottom: 6px; border-bottom: 1px solid #ccc; margin-bottom: 6px;">🔴 Menos Proveedores (MP): <span id="cierre-compras-mp" style="float: right;">-$0.00</span></div>
+
+                <div style="font-size: 1.2rem; font-weight: bold; color: #009ee3; padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid #ccc;">
+                    📱 TRANSF / MP NETO: <span id="cierre-mp" style="float: right;">$0.00</span>
+                </div>
+
                 <div class="texto-arqueo">📖 Fiados del Día: <span id="cierre-fiado" style="color: #ea4335; float: right; font-weight:bold;">$0.00</span></div>
                 
-                <div style="font-size: 1.4rem; font-weight: bold; color: #1a73e8; margin-top: 5px;">
+                <div style="font-size: 1.3rem; font-weight: bold; color: #1a73e8; margin-top: 5px;">
                     💰 BALANCE GENERAL TOTAL: <span id="cierre-total" style="float: right;">$0.00</span>
                 </div>
             </div>
@@ -225,7 +230,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyc_OFej8TQH4mEbtTTt_CKzi05S8f5d23N5Klov6Xn-v_hOU8rqrFjfs9qHXg5_RokTg/exec'; // <-- REEMPLAZÁ CON TU URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw-7oa4JnBeiwoALC5ey0ZfLjxvwp-Bf4OEQYeMDOkM_bmiX2gWoU2utfvMPIrd-XOguA/exec'; // <-- REEMPLAZÁ CON TU URL DE APPS SCRIPT
         
         let catalogoProductos = [], directorioClientes = [], ticketActual = [], subtotalTicket = 0, descuentoActual = 0, totalTicket = 0;
         let datosCierreActual = {}; 
@@ -437,7 +442,13 @@
                 document.getElementById('cierre-retiros-efe').innerText = '-$' + parseFloat(data.retirosEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-compras-efe').innerText = '-$' + parseFloat(data.comprasEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-efe-total').innerText = '$' + parseFloat(data.efectivoEnCaja).toLocaleString('es-AR', {minimumFractionDigits: 2});
-                document.getElementById('cierre-mp').innerText = '$' + parseFloat(data.mp).toLocaleString('es-AR');
+                
+                // MP breakdown
+                document.getElementById('cierre-ventas-mp').innerText = '$' + parseFloat(data.ventasMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-retiros-mp').innerText = '-$' + parseFloat(data.retirosMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-compras-mp').innerText = '-$' + parseFloat(data.comprasMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
+                document.getElementById('cierre-mp').innerText = '$' + parseFloat(data.mp).toLocaleString('es-AR', {minimumFractionDigits: 2});
+
                 document.getElementById('cierre-fiado').innerText = '$' + parseFloat(data.fiado).toLocaleString('es-AR');
                 document.getElementById('cierre-total').innerText = '$' + parseFloat(data.totalReal).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 setEstado(`Listo`, '#e6f4ea', '#137333'); document.getElementById('modal-cierre').style.display = 'flex';
