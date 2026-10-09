@@ -264,7 +264,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxuEkBkCcRbdvWDJXuO8D1D1vOigTAJ1OhdpAtgpeSBJLWFTVr9wTo1xxiRU8oy0dOAJA/exec'; // <-- URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycby1Nglwxw_m5vhAa3lAG94WirsmJjRsRKMXKQu-xiRSkT16CksuZhYahcAbE5dXHlPTVQ/exec'; // <-- URL DE APPS SCRIPT
         
         let catalogoProductos = [], directorioClientes = [], ticketActual = [], subtotalTicket = 0, descuentoActual = 0, totalTicket = 0;
         let datosCierreActual = {}; 
@@ -386,22 +386,21 @@
         function procesarVentaMixta() { let e = parseFloat(document.getElementById('input-mixto-efectivo').value)||0; let m = parseFloat(document.getElementById('input-mixto-mp').value)||0; if(Math.abs((e+m)-totalTicket)>0.5) return alert("No suma el total."); cerrarModal('modal-mixto'); enviarVentaAlMotor({efectivo:e, mp:m, fiado:0}, ""); }
         
         /* ----------------------------------------------------
-           NUEVA FUNCION DE APERTURA DE CAJA CON AUTOCOMPLETADO
+           NUEVA FUNCION DE APERTURA DE CAJA CON AUTOCOMPLETADO (SALDO REAL)
            ---------------------------------------------------- */
         function abrirModalApertura() { 
-            setEstado('Consultando saldo anterior...', '#fff3e0', '#fbbc05');
+            setEstado('Consultando saldo real...', '#fff3e0', '#fbbc05');
             
-            // 1. Consultamos el saldo actual al servidor antes de abrir la ventana
-            fetch(`${API_URL}?accion=obtenerCierreCaja`)
+            // 1. Consultamos el saldo real histórico acumulado en Apps Script
+            fetch(`${API_URL}?accion=obtenerSaldoCajaReal`)
             .then(r => r.json())
             .then(data => {
-                let efe = parseFloat(data.efectivoEnCaja);
+                let efe = parseFloat(data.efectivoReal);
                 if (isNaN(efe)) efe = 0;
-                let mp = parseFloat(data.mp);
+                let mp = parseFloat(data.mpReal);
                 if (isNaN(mp)) mp = 0;
                 
-                // 2. Precargamos los valores exactos que quedaron en el sistema
-                // (Si es mayor a 0, te lo escribe. Si no, lo deja vacío)
+                // 2. Precargamos los valores históricos reales
                 document.getElementById('input-fondo-efe').value = efe !== 0 ? efe.toFixed(2) : ''; 
                 document.getElementById('input-fondo-mp').value = mp !== 0 ? mp.toFixed(2) : ''; 
                 
@@ -410,7 +409,7 @@
                 setEstado('Caja cargada', '#e6f4ea', '#137333');
             })
             .catch(() => {
-                // Si falla la conexión por algo, lo abre vacío para que no te trabes
+                // Si falla la conexión, abre campos vacíos
                 document.getElementById('input-fondo-efe').value = ''; 
                 document.getElementById('input-fondo-mp').value = ''; 
                 document.getElementById('modal-apertura').style.display = 'flex'; 
