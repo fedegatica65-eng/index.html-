@@ -160,7 +160,7 @@
         </div>
     </div>
 
-    <!-- INGRESOS / COMPRAS CON N° FACTURA Y AUTOCÁLCULO -->
+    <!-- INGRESOS / COMPRAS -->
     <div class="overlay" id="modal-compra">
         <div class="modal">
             <h2 style="color: #673ab7;">Ingreso de Mercadería</h2>
@@ -196,7 +196,7 @@
         </div>
     </div>
 
-    <!-- MODAL CREAR PRODUCTO NUEVO CON MAESTRO DE CATEGORÍAS -->
+    <!-- MODAL CREAR PRODUCTO NUEVO CON MENÚ DESPLEGABLE DE CATEGORÍAS -->
     <div class="overlay" id="modal-nuevo-prod">
         <div class="modal">
             <h2>Crear Producto Nuevo</h2>
@@ -207,8 +207,9 @@
             <div style="display:flex; gap:10px;">
                 <div class="grupo-input" style="flex:1;">
                     <label>Categoría:</label>
-                    <input type="text" id="nuevo-prod-cat" class="input-dinero" list="lista-categorias-datalist" placeholder="Seleccioná o escribí...">
-                    <datalist id="lista-categorias-datalist"></datalist>
+                    <select id="nuevo-prod-cat" class="input-dinero">
+                        <!-- Las categorías se cargan automáticamente desde el maestro -->
+                    </select>
                 </div>
                 <div class="grupo-input" style="flex:1;"><label>Margen (%):</label><input type="number" id="nuevo-prod-margen" class="input-dinero" value="30" oninput="calcularPrecioVentaModal()"></div>
             </div>
@@ -290,13 +291,14 @@
         }
 
         function actualizarMaestroCategorias() {
-            let categoriasSet = new Set();
+            let categoriasDefault = ['Almacén', 'Bebidas', 'Golosinas', 'Limpieza', 'Lácteos', 'Kiosco', 'Panadería', 'Varios'];
+            let categoriasSet = new Set(categoriasDefault);
             catalogoProductos.forEach(p => { if(p.categoria) categoriasSet.add(p.categoria); });
-            if(categoriasSet.size === 0) { ['Almacén', 'Bebidas', 'Golosinas', 'Limpieza', 'Lácteos'].forEach(c => categoriasSet.add(c)); }
-            let datalist = document.getElementById('lista-categorias-datalist');
-            datalist.innerHTML = '';
+            
+            let selectCat = document.getElementById('nuevo-prod-cat');
+            selectCat.innerHTML = '';
             categoriasSet.forEach(cat => {
-                datalist.innerHTML += `<option value="${cat}">`;
+                selectCat.innerHTML += `<option value="${cat}">${cat}</option>`;
             });
         }
 
@@ -446,7 +448,6 @@
                 } else {
                     document.getElementById('nuevo-prod-cod').value = cod; 
                     document.getElementById('nuevo-prod-nom').value = ''; 
-                    document.getElementById('nuevo-prod-cat').value = '';
                     document.getElementById('nuevo-prod-costo').value = '';
                     document.getElementById('nuevo-prod-cant').value = ''; 
                     document.getElementById('nuevo-prod-venta').value = '0.00';
@@ -474,7 +475,7 @@
         function agregarNuevoProductoACompra() {
             let cod = document.getElementById('nuevo-prod-cod').value; 
             let nom = document.getElementById('nuevo-prod-nom').value;
-            let cat = document.getElementById('nuevo-prod-cat').value.trim() || "General";
+            let cat = document.getElementById('nuevo-prod-cat').value || "General";
             let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0; 
             let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0; 
             let cant = parseFloat(document.getElementById('nuevo-prod-cant').value) || 0;
@@ -494,7 +495,6 @@
                 body.innerHTML += `<tr><td>${it.nombre} ${badge}</td><td style="font-weight:bold;">+${it.cantidad}</td><td>$${it.costo.toLocaleString('es-AR')}</td><td><button onclick="itemsCompraTemporal.splice(${i},1); actualizarTablaCompras()" style="background:#fce8e6; border:none; color:red; cursor:pointer;">X</button></td></tr>`;
             });
 
-            // Autocalcular el total de la factura
             document.getElementById('compra-total').value = sumaTotalFactura.toFixed(2);
         }
 
