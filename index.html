@@ -128,7 +128,7 @@
 
     <div class="overlay" id="modal-descuento"><div class="modal"><h2>Aplicar Descuento</h2><div style="display:flex; justify-content:center; gap:5px; margin-bottom:15px;"><span style="font-size:2rem;">$</span><input type="number" id="input-valor-descuento" class="input-dinero"></div><div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-descuento')">Cancelar</button><button class="btn-modal" style="background-color: #f29900;" onclick="aplicarDescuento()">Aplicar</button></div></div></div>
     
-    <!-- APERTURA CON EFECTIVO Y MP -->
+    <!-- APERTURA -->
     <div class="overlay" id="modal-apertura">
         <div class="modal">
             <h2 style="color: #137333;">Apertura de Caja</h2>
@@ -160,15 +160,16 @@
         </div>
     </div>
 
-    <!-- INGRESOS / COMPRAS -->
+    <!-- INGRESOS / COMPRAS CON N° FACTURA Y AUTOCÁLCULO -->
     <div class="overlay" id="modal-compra">
         <div class="modal">
             <h2 style="color: #673ab7;">Ingreso de Mercadería</h2>
             <div style="display:flex; gap:10px;">
                 <div class="grupo-input" style="flex:2;"><label>Proveedor:</label><input type="text" id="compra-prov" class="input-dinero" placeholder="Opcional"></div>
-                <div class="grupo-input" style="flex:1;"><label>Pagado con:</label><select id="compra-metodo" class="input-dinero"><option value="Efectivo">Efectivo</option><option value="MP">Transf/MP</option></select></div>
+                <div class="grupo-input" style="flex:2;"><label>N° Factura / Remito:</label><input type="text" id="compra-factura" class="input-dinero" placeholder="Ej: F-0001-00012345"></div>
+                <div class="grupo-input" style="flex:1;"><label>Pago:</label><select id="compra-metodo" class="input-dinero"><option value="Efectivo">Efectivo</option><option value="MP">Transf/MP</option></select></div>
             </div>
-            <div class="grupo-input"><label style="color:#d32f2f;">Total Factura Pagada (Se restará de caja):</label><div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem; color:#d32f2f;">$</span><input type="number" id="compra-total" class="input-dinero" style="width:100%; font-weight:bold;"></div></div>
+            <div class="grupo-input"><label style="color:#673ab7;">Total Factura (Autocalculado / Editable):</label><div style="display:flex; align-items:center; gap:5px;"><span style="font-size:1.5rem; color:#673ab7;">$</span><input type="number" id="compra-total" class="input-dinero" style="width:100%; font-weight:bold; background:#f8fbff;" step="any"></div></div>
 
             <hr style="border: 0; border-top: 2px dashed #eee; margin: 15px 0;">
             <h3 style="margin: 0 0 10px 0; font-size:1.1rem;">1. Cargar Items al Stock</h3>
@@ -195,13 +196,27 @@
         </div>
     </div>
 
-    <!-- MODAL CREAR PRODUCTO NUEVO -->
+    <!-- MODAL CREAR PRODUCTO NUEVO CON MAESTRO DE CATEGORÍAS -->
     <div class="overlay" id="modal-nuevo-prod">
         <div class="modal">
             <h2>Crear Producto Nuevo</h2>
-            <div style="display:flex; gap:10px;"><div class="grupo-input" style="flex:1;"><label>Código:</label><input type="text" id="nuevo-prod-cod" class="input-dinero" readonly style="background:#eee;"></div><div class="grupo-input" style="flex:2;"><label>Nombre:</label><input type="text" id="nuevo-prod-nom" class="input-dinero"></div></div>
-            <div style="display:flex; gap:10px;"><div class="grupo-input"><label>Costo ($):</label><input type="number" id="nuevo-prod-costo" class="input-dinero" oninput="calcularPrecioVentaModal()"></div><div class="grupo-input"><label>Margen (%):</label><input type="number" id="nuevo-prod-margen" class="input-dinero" value="30" oninput="calcularPrecioVentaModal()"></div></div>
-            <div style="display:flex; gap:10px;"><div class="grupo-input"><label>Precio Venta (Aprox):</label><input type="number" id="nuevo-prod-venta" class="input-dinero" readonly style="background:#e6f4ea; font-weight:bold; color:#137333;"></div><div class="grupo-input"><label style="color:#673ab7;">Cant. Comprada:</label><input type="number" id="nuevo-prod-cant" class="input-dinero" style="border-color:#673ab7;" step="any"></div></div>
+            <div style="display:flex; gap:10px;">
+                <div class="grupo-input" style="flex:1;"><label>Código:</label><input type="text" id="nuevo-prod-cod" class="input-dinero" readonly style="background:#eee;"></div>
+                <div class="grupo-input" style="flex:2;"><label>Nombre:</label><input type="text" id="nuevo-prod-nom" class="input-dinero"></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div class="grupo-input" style="flex:1;">
+                    <label>Categoría:</label>
+                    <input type="text" id="nuevo-prod-cat" class="input-dinero" list="lista-categorias-datalist" placeholder="Seleccioná o escribí...">
+                    <datalist id="lista-categorias-datalist"></datalist>
+                </div>
+                <div class="grupo-input" style="flex:1;"><label>Margen (%):</label><input type="number" id="nuevo-prod-margen" class="input-dinero" value="30" oninput="calcularPrecioVentaModal()"></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div class="grupo-input"><label>Costo ($):</label><input type="number" id="nuevo-prod-costo" class="input-dinero" oninput="calcularPrecioVentaModal()" step="any"></div>
+                <div class="grupo-input"><label>Precio Venta (Aprox):</label><input type="number" id="nuevo-prod-venta" class="input-dinero" readonly style="background:#e6f4ea; font-weight:bold; color:#137333;"></div>
+            </div>
+            <div class="grupo-input"><label style="color:#673ab7;">Cant. Comprada:</label><input type="number" id="nuevo-prod-cant" class="input-dinero" style="border-color:#673ab7;" step="any"></div>
             <div class="acciones-modal"><button class="btn-modal btn-cancelar" onclick="cerrarModal('modal-nuevo-prod'); document.getElementById('input-buscador-compra').focus();">Cancelar</button><button class="btn-modal btn-confirmar" onclick="agregarNuevoProductoACompra()">Crear y Añadir</button></div>
         </div>
     </div>
@@ -240,7 +255,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyWBi5YTUH_Wcam9fyd6L6r5rf2heKO24uA-BgzQDy-X-h2P92AR5tj3hl2LinvfuuX/exec'; // <-- REEMPLAZÁ CON TU URL DE APPS SCRIPT
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwADTM95bXbtPaUGAeMqQF6dYoskVMkSUnDtkEbHYJkbjbVCqsTST4iJMdJJLqoE8kyzA/exec'; // <-- REEMPLAZÁ CON TU URL DE APPS SCRIPT
         
         let catalogoProductos = [], directorioClientes = [], ticketActual = [], subtotalTicket = 0, descuentoActual = 0, totalTicket = 0;
         let datosCierreActual = {}; 
@@ -266,8 +281,23 @@
         }
 
         function obtenerDatosDeSheets() {
-            fetch(`${API_URL}?accion=obtenerProductos`).then(r => r.json()).then(data => { catalogoProductos = data; setEstado(`Listo - ${catalogoProductos.length} prod`, '#e6f4ea', '#137333'); }).catch(() => setEstado('Error', '#fce8e6', '#c5221f'));
+            fetch(`${API_URL}?accion=obtenerProductos`).then(r => r.json()).then(data => { 
+                catalogoProductos = data; 
+                actualizarMaestroCategorias();
+                setEstado(`Listo - ${catalogoProductos.length} prod`, '#e6f4ea', '#137333'); 
+            }).catch(() => setEstado('Error', '#fce8e6', '#c5221f'));
             fetch(`${API_URL}?accion=obtenerClientes`).then(r => r.json()).then(data => { directorioClientes = data; });
+        }
+
+        function actualizarMaestroCategorias() {
+            let categoriasSet = new Set();
+            catalogoProductos.forEach(p => { if(p.categoria) categoriasSet.add(p.categoria); });
+            if(categoriasSet.size === 0) { ['Almacén', 'Bebidas', 'Golosinas', 'Limpieza', 'Lácteos'].forEach(c => categoriasSet.add(c)); }
+            let datalist = document.getElementById('lista-categorias-datalist');
+            datalist.innerHTML = '';
+            categoriasSet.forEach(cat => {
+                datalist.innerHTML += `<option value="${cat}">`;
+            });
         }
 
         /* ----- POS PRINCIPAL ----- */
@@ -393,8 +423,13 @@
 
         /* ----- INGRESOS / COMPRAS ----- */
         function abrirModalCompra() {
-            itemsCompraTemporal = []; document.getElementById('compra-prov').value = ''; document.getElementById('compra-total').value = '';
-            actualizarTablaCompras(); document.getElementById('modal-compra').style.display = 'flex'; document.getElementById('input-buscador-compra').focus();
+            itemsCompraTemporal = []; 
+            document.getElementById('compra-prov').value = ''; 
+            document.getElementById('compra-factura').value = '';
+            document.getElementById('compra-total').value = '0.00';
+            actualizarTablaCompras(); 
+            document.getElementById('modal-compra').style.display = 'flex'; 
+            document.getElementById('input-buscador-compra').focus();
         }
 
         document.getElementById('input-buscador-compra').addEventListener('keypress', function(e) {
@@ -409,9 +444,15 @@
                     document.getElementById('modal-ingreso-stock').style.display = 'flex';
                     document.getElementById('ingreso-stock-cant').focus();
                 } else {
-                    document.getElementById('nuevo-prod-cod').value = cod; document.getElementById('nuevo-prod-nom').value = ''; document.getElementById('nuevo-prod-costo').value = '';
-                    document.getElementById('nuevo-prod-cant').value = ''; document.getElementById('nuevo-prod-venta').value = '0.00';
-                    document.getElementById('modal-nuevo-prod').style.display = 'flex'; document.getElementById('nuevo-prod-nom').focus();
+                    document.getElementById('nuevo-prod-cod').value = cod; 
+                    document.getElementById('nuevo-prod-nom').value = ''; 
+                    document.getElementById('nuevo-prod-cat').value = '';
+                    document.getElementById('nuevo-prod-costo').value = '';
+                    document.getElementById('nuevo-prod-cant').value = ''; 
+                    document.getElementById('nuevo-prod-venta').value = '0.00';
+                    actualizarMaestroCategorias();
+                    document.getElementById('modal-nuevo-prod').style.display = 'flex'; 
+                    document.getElementById('nuevo-prod-nom').focus();
                 }
                 this.value = ''; 
             }
@@ -431,26 +472,49 @@
         }
 
         function agregarNuevoProductoACompra() {
-            let cod = document.getElementById('nuevo-prod-cod').value; let nom = document.getElementById('nuevo-prod-nom').value;
-            let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0; let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0; let cant = parseFloat(document.getElementById('nuevo-prod-cant').value) || 0;
+            let cod = document.getElementById('nuevo-prod-cod').value; 
+            let nom = document.getElementById('nuevo-prod-nom').value;
+            let cat = document.getElementById('nuevo-prod-cat').value.trim() || "General";
+            let costo = parseFloat(document.getElementById('nuevo-prod-costo').value) || 0; 
+            let margen = parseFloat(document.getElementById('nuevo-prod-margen').value) || 0; 
+            let cant = parseFloat(document.getElementById('nuevo-prod-cant').value) || 0;
             if(!nom || cant <= 0) return alert("El nombre y la cantidad son obligatorios.");
-            itemsCompraTemporal.push({ codigo: cod, nombre: nom, categoria: "General", costo: costo, margen: (margen/100), cantidad: cant, nuevo: true });
+            itemsCompraTemporal.push({ codigo: cod, nombre: nom, categoria: cat, costo: costo, margen: (margen/100), cantidad: cant, nuevo: true });
             cerrarModal('modal-nuevo-prod'); actualizarTablaCompras(); document.getElementById('input-buscador-compra').focus();
         }
 
         function actualizarTablaCompras() {
             let body = document.getElementById('lista-items-compra'); body.innerHTML = '';
+            let sumaTotalFactura = 0;
+            
             itemsCompraTemporal.forEach((it, i) => {
+                let subtotalItem = it.cantidad * it.costo;
+                sumaTotalFactura += subtotalItem;
                 let badge = it.nuevo ? '<span style="font-size:0.7rem; background:#137333; color:white; padding:2px 4px; border-radius:3px;">NUEVO</span>' : '';
-                body.innerHTML += `<tr><td>${it.nombre} ${badge}</td><td style="font-weight:bold;">+${it.cantidad}</td><td>$${it.costo}</td><td><button onclick="itemsCompraTemporal.splice(${i},1); actualizarTablaCompras()" style="background:#fce8e6; border:none; color:red; cursor:pointer;">X</button></td></tr>`;
+                body.innerHTML += `<tr><td>${it.nombre} ${badge}</td><td style="font-weight:bold;">+${it.cantidad}</td><td>$${it.costo.toLocaleString('es-AR')}</td><td><button onclick="itemsCompraTemporal.splice(${i},1); actualizarTablaCompras()" style="background:#fce8e6; border:none; color:red; cursor:pointer;">X</button></td></tr>`;
             });
+
+            // Autocalcular el total de la factura
+            document.getElementById('compra-total').value = sumaTotalFactura.toFixed(2);
         }
 
         function guardarCompra() {
-            let prov = document.getElementById('compra-prov').value || "Varios"; let total = parseFloat(document.getElementById('compra-total').value); let metodo = document.getElementById('compra-metodo').value;
-            if(isNaN(total) || total < 0) return alert("Ingresá el monto pagado (0 si fue sin cargo).");
+            let prov = document.getElementById('compra-prov').value || "Varios"; 
+            let factura = document.getElementById('compra-factura').value || "";
+            let total = parseFloat(document.getElementById('compra-total').value); 
+            let metodo = document.getElementById('compra-metodo').value;
+            
+            if(isNaN(total) || total < 0) return alert("Ingresá el monto de la factura.");
+            if(itemsCompraTemporal.length === 0) return alert("No hay items cargados en la factura.");
+
             setEstado('Procesando compra...', '#fff3e0', '#fbbc05');
-            fetch(API_URL, {method:'POST', body:JSON.stringify({accion:'registrarCompra', compra: {proveedor:prov, total:total, metodo:metodo, detalle:itemsCompraTemporal}})}).then(r=>r.json()).then(d=>{
+            fetch(API_URL, {
+                method: 'POST', 
+                body: JSON.stringify({
+                    accion: 'registrarCompra', 
+                    compra: { proveedor: prov, numeroFactura: factura, total: total, metodo: metodo, detalle: itemsCompraTemporal }
+                })
+            }).then(r=>r.json()).then(d=>{
                 if(d.status==='success'){ cerrarModal('modal-compra'); setEstado('¡Stock y Costos actualizados!', '#e6f4ea', '#137333'); obtenerDatosDeSheets(); }
             });
         }
@@ -468,7 +532,6 @@
                 document.getElementById('cierre-compras-efe').innerText = '-$' + parseFloat(data.comprasEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-efe-total').innerText = '$' + parseFloat(data.efectivoEnCaja).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 
-                // MP breakdown
                 document.getElementById('cierre-ventas-mp').innerText = '$' + parseFloat(data.ventasMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-retiros-mp').innerText = '-$' + parseFloat(data.retirosMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-compras-mp').innerText = '-$' + parseFloat(data.comprasMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
