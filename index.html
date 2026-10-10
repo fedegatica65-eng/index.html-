@@ -287,7 +287,8 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycby9NlBMOtT6JNQdEdanHo21-5MZsawS7_S1hBV6j-uwejUVII9B3z6SyxqOQAmUIGP50g/exec'; // <-- URL DE APPS SCRIPT
+        // ¡REEMPLAZAR CON TU URL REAL DE APPS SCRIPT!
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwCfyBaZf4hKgJHmkpWfr6lx9DTw2BZbRVXaSJ8PltST8f7Po_gCFZCgv62-llSy68ogw/exec'; 
         
         let catalogoProductos = [], directorioClientes = [], ticketActual = [], subtotalTicket = 0, descuentoActual = 0, totalTicket = 0;
         let datosCierreActual = {}; 
@@ -465,7 +466,7 @@
             });
         }
 
-        /* ----- NUEVO: MOVIMIENTOS DE CAJA (INGRESO / RETIRO) ----- */
+        /* ----- MOVIMIENTOS DE CAJA (INGRESO / RETIRO) ----- */
         function abrirModalMovimiento() { 
             document.getElementById('mov-motivo').value = ''; 
             document.getElementById('mov-monto').value = ''; 
@@ -609,14 +610,14 @@
                 document.getElementById('cierre-fondo-mp').innerText = '$' + parseFloat(data.fondoInicialMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 
                 document.getElementById('cierre-ventas-efe').innerText = '$' + parseFloat(data.ventasEfectivo).toLocaleString('es-AR');
-                // NUEVO: Mostrar ingresos
+                // Mostrar ingresos
                 document.getElementById('cierre-ingresos-efe').innerText = '+$' + parseFloat(data.ingresosEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-retiros-efe').innerText = '-$' + parseFloat(data.retirosEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-compras-efe').innerText = '-$' + parseFloat(data.comprasEfectivo || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-efe-total').innerText = '$' + parseFloat(data.efectivoEnCaja).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 
                 document.getElementById('cierre-ventas-mp').innerText = '$' + parseFloat(data.ventasMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
-                // NUEVO: Mostrar ingresos MP
+                // Mostrar ingresos MP
                 document.getElementById('cierre-ingresos-mp').innerText = '+$' + parseFloat(data.ingresosMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-retiros-mp').innerText = '-$' + parseFloat(data.retirosMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
                 document.getElementById('cierre-compras-mp').innerText = '-$' + parseFloat(data.comprasMp || 0).toLocaleString('es-AR', {minimumFractionDigits: 2});
